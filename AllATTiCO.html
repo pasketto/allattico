@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AllATTiCO</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sidebar-w: 200px;
+  --bg: #F8F9FA; --white: #FFFFFF; --text: #1A1A2E; --muted: #6B7280;
+  --border: #E5E7EB; --hover: #F3F4F6; --primary: #2563EB; --primary-light: #EFF6FF;
+  --green: #16A34A; --green-light: #F0FDF4; --red: #DC2626; --red-light: #FEF2F2;
+  --orange: #EA580C; --orange-light: #FFF7ED;
+  --apt0: #7C3AED; --apt1: #2563EB; --apt2: #16A34A; --apt3: #EA580C;
+  --radius: 10px; --shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; font-size: 14px; }
+
+/* LOGIN */
+.login-screen {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.login-box {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 16px; padding: 40px 36px; width: 360px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.1); text-align: center;
+}
+.login-logo {
+  width: 48px; height: 48px; background: var(--primary);
+  border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; color: white; font-size: 22px;
+  font-weight: 700; margin: 0 auto 20px;
+}
+.login-box h1 {
+  font-size: 22px; font-weight: 600; letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.login-box p {
+  font-size: 13px; color: var(--muted); margin-bottom: 28px;
+}
+.login-input {
+  width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+  border-radius: 9px; font-family: 'Inter', sans-serif;
+  font-size: 14px; background: var(--bg); color: var(--text);
+  outline: none; text-align: center; letter-spacing: 2px;
+  margin-bottom: 12px; transition: border-color .15s;
+}
+.login-input:focus { border-color: var(--primary); }
+.login-btn {
+  width: 100%; padding: 11px; background: var(--primary);
+  color: white; border: none; border-radius: 9px;
+  font-family: 'Inter', sans-serif; font-size: 14px;
+  font-weight: 500; cursor: pointer; transition: opacity .15s;
+}
+.login-btn:hover { opacity: .88; }
+.login-error {
+  font-size: 12px; color: var(--red); margin-top: 10px;
+  min-height: 18px;
+}
+
+/* SIDEBAR */
+.sidebar { width: var(--sidebar-w); background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; }
+.sidebar-logo { padding: 18px 16px 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.logo-icon { width: 28px; height: 28px; background: var(--primary); border-radius: 7px; display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 600; }
+.sidebar-logo span { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; }
+.sidebar-nav { padding: 10px; flex: 1; }
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; cursor: pointer; color: var(--muted); font-size: 13px; transition: all 0.12s; margin-bottom: 1px; border: none; background: transparent; width: 100%; text-align: left; }
+.nav-item:hover { background: var(--hover); color: var(--text); }
+.nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 500; }
+.nav-item .icon { width: 18px; text-align: center; font-size: 15px; }
+.sidebar-bottom { padding: 12px 14px; border-top: 1px solid var(--border); }
+.sidebar-bottom h4 { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; font-weight: 500; margin-bottom: 8px; }
+.portal-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; font-size: 12px; }
+.portal-dot { width: 7px; height: 7px; border-radius: 50%; }
+.portal-label { color: var(--muted); flex: 1; }
+.portal-ok { font-size: 11px; color: var(--green); font-weight: 500; }
+
+/* MAIN */
+.main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; }
+.topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 50; }
+.topbar-title { font-size: 15px; font-weight: 600; flex: 1; }
+.search-box { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 13px; color: var(--muted); width: 220px; }
+.btn-top { padding: 7px 14px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text); transition: all 0.12s; white-space: nowrap; }
+.btn-top:hover { background: var(--hover); }
+.btn-top.primary { background: var(--primary); color: white; border-color: var(--primary); }
+.btn-top.primary:hover { opacity: 0.88; }
+.sync-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); background: var(--bg); border: 1px solid var(--border); padding: 5px 11px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); }
+.sync-dot.live { background: var(--green); animation: pulse 2s infinite; }
+.sync-dot.err { background: var(--red); }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+.content { padding: 20px 24px; flex: 1; }
+.page { display: none; }
+.page.active { display: block; }
+
+/* STATS */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 18px; }
+.stat-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+.stat-card .lbl { font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+.stat-card .val { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; }
+.stat-card .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* CARDS */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+.card-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.card-header h3 { font-size: 13px; font-weight: 600; }
+.card-header a { font-size: 12px; color: var(--primary); cursor: pointer; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+
+/* EVENTI */
+.event-row { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border); transition: background 0.1s; cursor: pointer; }
+.event-row:last-child { border-bottom: none; }
+.event-row:hover { background: var(--hover); }
+.evt-badge { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 5px; white-space: nowrap; flex-shrink: 0; }
+.badge-in { background: var(--green-light); color: var(--green); }
+.badge-out { background: var(--orange-light); color: var(--orange); }
+.badge-stay { background: var(--primary-light); color: var(--primary); }
+.evt-info { flex: 1; min-width: 0; }
+.evt-info .guest { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.evt-info .apt { font-size: 12px; color: var(--muted); }
+.evt-meta { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+/* ATTIVITÀ */
+.act-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+.act-row:last-child { border-bottom: none; }
+.act-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.act-info { flex: 1; min-width: 0; }
+.act-info .type { font-size: 12px; font-weight: 500; color: var(--primary); }
+.act-info .name { font-size: 13px; }
+.act-info .apt { font-size: 12px; color: var(--muted); }
+.act-time { font-size: 11px; color: var(--muted); }
+
+/* CALENDARIO */
+.cal-nav-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.cal-btn { width: 30px; height: 30px; border-radius: 7px; border: 1px solid var(--border); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+.cal-btn:hover { background: var(--hover); }
+.cal-month { font-size: 16px; font-weight: 600; }
+.cal-legend { display: flex; gap: 14px; margin-left: auto; flex-wrap: wrap; }
+.cal-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+.cal-grid-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
+.cal-bar { position: absolute; top: 9px; height: 28px; border-radius: 20px; display: flex; align-items: center; padding: 0 7px; gap: 5px; font-size: 11px; font-weight: 500; white-space: nowrap; overflow: hidden; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.1); z-index: 2; transition: filter .15s; }
+.cal-bar:hover { filter: brightness(.92); }
+.cal-bar .avatar { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; flex-shrink: 0; color: white; }
+
+/* PRENOTAZIONI */
+.filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+.chip { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--white); font-size: 12px; cursor: pointer; color: var(--muted); font-family: 'Inter',sans-serif; transition: all .1s; }
+.chip.active { background: var(--text); color: white; border-color: var(--text); }
+.bk-row { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-bottom: 1px solid var(--border); transition: background .1s; cursor: pointer; }
+.bk-row:hover { background: var(--hover); }
+.bk-row:last-child { border-bottom: none; }
+.bk-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.bk-info { flex: 1; min-width: 0; }
+.bk-info h3 { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.bk-info p { font-size: 12px; color: var(--muted); }
+.bk-dates { text-align: right; font-size: 12px; color: var(--muted); }
+.bk-dates strong { display: block; font-size: 14px; font-weight: 600; color: var(--text); }
+.bk-plat { padding: 3px 9px; border-radius: 5px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.p-airbnb { background: #FEE2E2; color: #DC2626; }
+.p-booking { background: #DBEAFE; color: #1D4ED8; }
+.p-diretto { background: #DCFCE7; color: #16A34A; }
+.p-blocked { background: #F3F4F6; color: #6B7280; }
+
+/* SPESE */
+.fin-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.fin-row:last-child { border-bottom: none; }
+.fin-row .ft { color: var(--muted); }
+.fin-row .fv { font-weight: 500; }
+.fin-row .fv.pos { color: var(--green); }
+.fin-row .fv.neg { color: var(--red); }
+
+/* STATISTICHE */
+.bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.bar-lbl { font-size: 12px; color: var(--muted); min-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-wrap { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; }
+.bar-val { font-size: 12px; font-weight: 500; min-width: 50px; text-align: right; }
+.month-bars { display: flex; align-items: flex-end; gap: 4px; height: 70px; }
+.mb-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.mb-bar { width: 100%; border-radius: 3px 3px 0 0; }
+.mb-lbl { font-size: 9px; color: var(--muted); }
+
+/* MESSAGGI */
+.msg-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 10px; }
+.msg-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.msg-title-in { font-size: 13px; font-weight: 500; border: none; background: transparent; color: var(--text); font-family: 'Inter',sans-serif; flex: 1; outline: none; border-bottom: 1px dashed transparent; }
+.msg-title-in:focus { border-bottom-color: var(--primary); }
+.msg-timing-in { font-size: 11px; color: var(--muted); background: var(--bg); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); font-family: 'Inter',sans-serif; outline: none; }
+.msg-body-in { font-size: 13px; color: var(--muted); line-height: 1.6; border-left: 3px solid var(--border); padding: 7px 11px; width: 100%; border-right: none; border-top: none; border-bottom: none; background: var(--bg); border-radius: 0 6px 6px 0; font-family: 'Inter',sans-serif; resize: vertical; min-height: 60px; outline: none; }
+.msg-body-in:focus { border-left-color: var(--primary); color: var(--text); }
+.msg-foot { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+.toggle { width: 34px; height: 19px; background: var(--border); border-radius: 10px; cursor: pointer; position: relative; transition: background .2s; border: none; }
+.toggle.on { background: var(--green); }
+.toggle::after { content:''; position: absolute; width: 13px; height: 13px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: left .2s; }
+.toggle.on::after { left: 18px; }
+.toggle-lbl { font-size: 12px; color: var(--muted); }
+.save-ok { font-size: 11px; color: var(--green); margin-left: auto; opacity: 0; transition: opacity .3s; }
+.save-ok.show { opacity: 1; }
+.badge-airbnb { font-size: 11px; background: #FEE2E2; color: var(--red); padding: 2px 7px; border-radius: 5px; font-weight: 500; }
+.vars-hint { font-size: 12px; color: var(--muted); background: var(--bg); border-radius: 7px; padding: 9px 13px; margin-bottom: 14px; border: 1px solid var(--border); }
+
+/* PERIODO FILTRO */
+.periodo-wrap { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.tab-row { display: flex; gap: 3px; background: var(--bg); padding: 3px; border-radius: 7px; border: 1px solid var(--border); }
+.tab-btn { padding: 5px 12px; border-radius: 5px; border: none; background: transparent; font-size: 12px; cursor: pointer; color: var(--muted); font-family: 'Inter',sans-serif; transition: all .12s; }
+.tab-btn.active { background: var(--white); color: var(--text); font-weight: 500; box-shadow: var(--shadow); }
+.periodo-sel { padding: 5px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'Inter',sans-serif; font-size: 12px; background: var(--white); color: var(--text); }
+
+/* MODAL */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 200; align-items: center; justify-content: center; }
+.overlay.open { display: flex; }
+.modal { background: var(--white); border-radius: 14px; padding: 24px; width: 420px; max-width: 95vw; box-shadow: 0 20px 60px rgba(0,0,0,.15); }
+.modal h2 { font-size: 17px; font-weight: 600; margin-bottom: 18px; }
+.fg { margin-bottom: 12px; }
+.fg label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
+.fg input, .fg select { width: 100%; padding: 8px 11px; border: 1px solid var(--border); border-radius: 7px; font-family: 'Inter',sans-serif; font-size: 13px; background: var(--white); color: var(--text); outline: none; }
+.fg input:focus, .fg select:focus { border-color: var(--primary); }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-p { width: 100%; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 8px; font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; margin-top: 6px; }
+.btn-p:hover { opacity: .88; }
+.btn-s { width: 100%; padding: 9px; background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; font-family: 'Inter',sans-serif; font-size: 13px; cursor: pointer; margin-top: 5px; }
+.conflict { background: var(--red-light); border: 1px solid #FECACA; border-radius: 7px; padding: 9px 12px; font-size: 12px; color: var(--red); margin-top: 7px; display: none; }
+.loading-wrap { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+.spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.err-box { background: var(--red-light); border: 1px solid #FECACA; border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--red); margin-bottom: 14px; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">A</div>
+    <span>AllATTiCO</span>
+  </div>
+  <nav class="sidebar-nav">
+    <button class="nav-item active" onclick="showPage('home',this)"><span class="icon">🏠</span>Homepage</button>
+    <button class="nav-item" onclick="showPage('calendario',this)"><span class="icon">📅</span>Calendario</button>
+    <button class="nav-item" onclick="showPage('prenotazioni',this)"><span class="icon">📋</span>Prenotazioni</button>
+    <button class="nav-item" onclick="showPage('messaggi',this)"><span class="icon">💬</span>Messaggi</button>
+    <button class="nav-item" onclick="showPage('statistiche',this)"><span class="icon">📊</span>Statistiche</button>
+    <button class="nav-item" onclick="showPage('spese',this)"><span class="icon">💶</span>Entrate & Spese</button>
+  </nav>
+  <div class="sidebar-bottom">
+    <h4>Portali</h4>
+    <div class="portal-row"><div class="portal-dot" style="background:#FF5A5F"></div><span class="portal-label">Airbnb</span><span class="portal-ok" id="p-airbnb">●</span></div>
+    <div class="portal-row"><div class="portal-dot" style="background:#003580"></div><span class="portal-label">Booking.com</span><span class="portal-ok" id="p-booking">●</span></div>
+  </div>
+</aside>
+
+<main class="main">
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Homepage</div>
+    <div class="search-box">🔍 <span>Ospite o prenotazione...</span></div>
+    <button class="btn-top" onclick="openModal('block')">🔒 Blocca date</button>
+    <button class="btn-top primary" onclick="openModal('booking')">+ Prenotazione</button>
+    <div class="sync-pill" onclick="loadAll()" title="Clicca per aggiornare">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span id="sync-label">Connessione...</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- HOME -->
+    <div id="page-home" class="page active">
+      <div class="stats-row">
+        <div class="stat-card"><div class="lbl">Entrate 2026</div><div class="val" id="s-entrate">—</div><div class="sub">da Google Sheets</div></div>
+        <div class="stat-card"><div class="lbl">Spese 2026</div><div class="val" id="s-spese">—</div><div class="sub">da Google Sheets</div></div>
+        <div class="stat-card"><div class="lbl">Netto 2026</div><div class="val" id="s-netto">—</div><div class="sub">entrate − spese</div></div>
+        <div class="stat-card"><div class="lbl">Prenotazioni attive</div><div class="val" id="s-prenot">—</div><div class="sub">da Smoobu</div></div>
+      </div>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-header"><h3>Prossimi eventi</h3><a onclick="showPage('prenotazioni',null)">Mostra tutto →</a></div>
+          <div id="prossimi-eventi"><div class="loading-wrap"><div class="spinner"></div>Caricamento...</div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="card">
+            <div class="card-header"><h3>Stato portali</h3></div>
+            <div style="padding:0">
+              <div class="event-row"><div style="width:28px;height:28px;border-radius:7px;background:#FEE2E2;display:flex;align-items:center;justify-content:center;font-size:14px">🏠</div><span style="flex:1;font-size:13px;font-weight:500">Airbnb</span><span style="font-size:12px;color:var(--green);font-weight:500" id="ps-airbnb">Sincronizzato</span></div>
+              <div class="event-row"><div style="width:28px;height:28px;border-radius:7px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:14px">🅱️</div><span style="flex:1;font-size:13px;font-weight:500">Booking.com</span><span style="font-size:12px;color:var(--green);font-weight:500" id="ps-booking">Sincronizzato</span></div>
+            </div>
+          </div>
+          <div class="card" style="flex:1">
+            <div class="card-header"><h3>Ultime attività</h3></div>
+            <div id="ultime-attivita"><div class="loading-wrap"><div class="spinner"></div>Caricamento...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDARIO -->
+    <div id="page-calendario" class="page">
+      <div class="cal-nav-row">
+        <button class="cal-btn" onclick="changeMonth(-1)">←</button>
+        <div class="cal-month" id="cal-label"></div>
+        <button class="cal-btn" onclick="changeMonth(1)">→</button>
+        <div class="cal-legend">
+          <div class="cal-legend-item"><div style="width:24px;height:12px;border-radius:6px;background:#FECDD3"></div>Airbnb</div>
+          <div class="cal-legend-item"><div style="width:24px;height:12px;border-radius:6px;background:#BFDBFE"></div>Booking</div>
+          <div class="cal-legend-item"><div style="width:24px;height:12px;border-radius:6px;background:#BBF7D0"></div>Diretto</div>
+          <div class="cal-legend-item"><div style="width:24px;height:12px;border-radius:6px;background:#E5E7EB"></div>Bloccato</div>
+        </div>
+      </div>
+      <div class="cal-grid-wrap"><div id="cal-grid"><div class="loading-wrap"><div class="spinner"></div>Caricamento calendario...</div></div></div>
+    </div>
+
+    <!-- PRENOTAZIONI -->
+    <div id="page-prenotazioni" class="page">
+      <div class="filter-row">
+        <button class="chip active" onclick="filterB('tutte',this)">Tutte</button>
+        <button class="chip" onclick="filterB('airbnb',this)">Airbnb</button>
+        <button class="chip" onclick="filterB('booking',this)">Booking</button>
+        <button class="chip" onclick="filterB('n5',this)">n.5</button>
+        <button class="chip" onclick="filterB('n7',this)">n.7</button>
+        <button class="chip" onclick="filterB('n23',this)">n.23</button>
+        <button class="chip" onclick="filterB('tutti',this)">Tutti e 3</button>
+        <button class="chip" onclick="filterB('incorso',this)">In corso</button>
+        <button class="chip" onclick="filterB('arrivo',this)">In arrivo</button>
+      </div>
+      <div class="card"><div id="bookings-list"><div class="loading-wrap"><div class="spinner"></div>Caricamento...</div></div></div>
+    </div>
+
+    <!-- MESSAGGI -->
+    <div id="page-messaggi" class="page">
+      <div class="vars-hint">Variabili: <code>[Nome]</code> · <code>[appartamento]</code> · <code>[data_in]</code> · <code>[data_out]</code> · <code>[codice]</code> · <code>[indirizzo]</code></div>
+      <div id="msg-list"></div>
+    </div>
+
+    <!-- STATISTICHE -->
+    <div id="page-statistiche" class="page">
+      <div class="periodo-wrap">
+        <span style="font-size:13px;font-weight:500;color:var(--muted)">Periodo:</span>
+        <div class="tab-row">
+          <button class="tab-btn active" onclick="setPeriodo('anno',this)">Anno intero</button>
+          <button class="tab-btn" onclick="setPeriodo('trimestre',this)">Trimestre</button>
+          <button class="tab-btn" onclick="setPeriodo('mese',this)">Mese</button>
+          <button class="tab-btn" onclick="setPeriodo('custom',this)">Personalizzato</button>
+        </div>
+        <div id="f-trimestre" style="display:none"><select class="periodo-sel" id="sel-trim" onchange="aggiornaStats()"><option value="1">Q1 Gen–Mar</option><option value="2">Q2 Apr–Giu</option><option value="3">Q3 Lug–Set</option><option value="4">Q4 Ott–Dic</option></select></div>
+        <div id="f-mese" style="display:none"><select class="periodo-sel" id="sel-mese" onchange="aggiornaStats()"><option value="0">Gennaio</option><option value="1">Febbraio</option><option value="2">Marzo</option><option value="3">Aprile</option><option value="4" selected>Maggio</option><option value="5">Giugno</option><option value="6">Luglio</option><option value="7">Agosto</option><option value="8">Settembre</option><option value="9">Ottobre</option><option value="10">Novembre</option><option value="11">Dicembre</option></select></div>
+        <div id="f-custom" style="display:none;gap:8px;align-items:center">
+          <input type="date" class="periodo-sel" id="custom-from" onchange="aggiornaStats()">
+          <span style="color:var(--muted)">→</span>
+          <input type="date" class="periodo-sel" id="custom-to" onchange="aggiornaStats()">
+        </div>
+        <div id="periodo-lbl" style="margin-left:auto;font-size:12px;color:var(--muted);font-weight:500"></div>
+      </div>
+      <div id="stats-loading" class="loading-wrap"><div class="spinner"></div>Caricamento...</div>
+      <div id="stats-content" style="display:none">
+        <!-- Riga 1: Ricevuto (da Google Sheets) -->
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px">✅ Incassato · da Google Sheets</div>
+        <div class="stats-row" style="margin-bottom:6px">
+          <div class="stat-card"><div class="lbl">Entrate lorde ricevute</div><div class="val" id="k-lorde">—</div><div class="sub">già incassato</div></div>
+          <div class="stat-card"><div class="lbl">Commissioni pagate</div><div class="val" id="k-comm" style="color:var(--red)">—</div><div class="sub">Airbnb + Booking</div></div>
+          <div class="stat-card"><div class="lbl">Entrate nette ricevute</div><div class="val" id="k-nette">—</div><div class="sub">dopo commissioni</div></div>
+          <div class="stat-card"><div class="lbl">Netto finale ricevuto</div><div class="val" id="k-netto" style="color:var(--green)">—</div><div class="sub">nette − spese</div></div>
+        </div>
+        <!-- Riga 2: Stimato (da Smoobu) -->
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;margin-top:6px">📅 Stimato · da Smoobu (include prenotazioni future)</div>
+        <div class="stats-row" style="margin-bottom:16px">
+          <div class="stat-card"><div class="lbl">Entrate lorde stimate</div><div class="val" id="k-stimate">—</div><div class="sub">tutte le prenotazioni</div></div>
+          <div class="stat-card"><div class="lbl">Da ricevere</div><div class="val" id="k-daricevere" style="color:var(--primary)">—</div><div class="sub">stimate − ricevute</div></div>
+          <div class="stat-card"><div class="lbl">Prenotazioni periodo</div><div class="val" id="k-prenot">—</div><div class="sub">da Smoobu</div></div>
+          <div class="stat-card"><div class="lbl">Media per prenotazione</div><div class="val" id="k-media">—</div><div class="sub">valore medio</div></div>
+        </div>
+        <div class="two-col">
+          <div class="card"><div class="card-header"><h3 id="chart-title">Entrate mensili</h3></div><div style="padding:14px 16px"><div class="month-bars" id="month-bars"></div></div></div>
+          <div class="card"><div class="card-header"><h3>Lorde vs Nette vs Costi</h3></div><div style="padding:14px 16px"><div id="lordo-netto-bars"></div></div></div>
+        </div>
+        <div class="two-col">
+          <div class="card"><div class="card-header"><h3>Per appartamento</h3></div><div style="padding:14px 16px"><div id="apt-bars"></div></div></div>
+          <div class="card"><div class="card-header"><h3>Per piattaforma</h3></div><div style="padding:14px 16px"><div id="piatt-bars"></div></div></div>
+        </div>
+        <div class="two-col">
+          <div class="card"><div class="card-header"><h3>Spese per categoria</h3></div><div style="padding:14px 16px"><div id="spese-cats"></div></div></div>
+          <div class="card"><div class="card-header"><h3>Confronto periodo precedente</h3></div><div style="padding:14px 16px"><div id="confronto"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENTRATE & SPESE -->
+    <div id="page-spese" class="page">
+      <div class="periodo-wrap">
+        <span style="font-size:13px;font-weight:500;color:var(--muted)">Periodo:</span>
+        <div class="tab-row">
+          <button class="tab-btn active" onclick="setPeriodoSpese('anno',this)">Anno intero</button>
+          <button class="tab-btn" onclick="setPeriodoSpese('trimestre',this)">Trimestre</button>
+          <button class="tab-btn" onclick="setPeriodoSpese('mese',this)">Mese</button>
+          <button class="tab-btn" onclick="setPeriodoSpese('custom',this)">Personalizzato</button>
+        </div>
+        <div id="fs-trimestre" style="display:none"><select class="periodo-sel" id="ss-trim" onchange="aggiornaSpese()"><option value="1">Q1 Gen–Mar</option><option value="2">Q2 Apr–Giu</option><option value="3">Q3 Lug–Set</option><option value="4">Q4 Ott–Dic</option></select></div>
+        <div id="fs-mese" style="display:none"><select class="periodo-sel" id="ss-mese" onchange="aggiornaSpese()"><option value="0">Gennaio</option><option value="1">Febbraio</option><option value="2">Marzo</option><option value="3">Aprile</option><option value="4" selected>Maggio</option><option value="5">Giugno</option><option value="6">Luglio</option><option value="7">Agosto</option><option value="8">Settembre</option><option value="9">Ottobre</option><option value="10">Novembre</option><option value="11">Dicembre</option></select></div>
+        <div id="fs-custom" style="display:none;gap:8px;align-items:center">
+          <input type="date" class="periodo-sel" id="sc-from" onchange="aggiornaSpese()">
+          <span style="color:var(--muted)">→</span>
+          <input type="date" class="periodo-sel" id="sc-to" onchange="aggiornaSpese()">
+        </div>
+      </div>
+      <div id="spese-loading" class="loading-wrap"><div class="spinner"></div>Caricamento da Google Sheets...</div>
+      <div id="spese-content" style="display:none">
+        <div class="two-col">
+          <div class="card"><div class="card-header"><h3>Riepilogo periodo</h3></div><div style="padding:0 16px"><div id="r-anno"></div></div></div>
+          <div class="card"><div class="card-header"><h3>Per appartamento</h3></div><div style="padding:0 16px"><div id="r-apt"></div></div></div>
+        </div>
+        <div class="two-col">
+          <div class="card"><div class="card-header"><h3>Spese per categoria</h3></div><div style="padding:0 16px"><div id="r-cats"></div></div></div>
+          <div class="card"><div class="card-header"><h3>Movimenti del periodo</h3></div><div style="padding:0 16px;max-height:320px;overflow-y:auto"><div id="r-mov"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MODAL PRENOTAZIONE -->
+<div class="overlay" id="modal-booking">
+  <div class="modal">
+    <h2>Nuova prenotazione diretta</h2>
+    <div class="fg"><label>Appartamento</label>
+      <select id="f-apt"><option value="0">AllATTiCO (tutti e 3)</option><option value="1">AllATTiCO n.5 · bilocale</option><option value="2">AllATTiCO n.7 · loft balcone</option><option value="3">AllATTiCO n.23 · loft terrazzo</option></select>
+    </div>
+    <div class="fg"><label>Nome ospite</label><input type="text" id="f-name" placeholder="es. Mario Rossi"></div>
+    <div class="frow">
+      <div class="fg"><label>Check-in</label><input type="date" id="f-in"></div>
+      <div class="fg"><label>Check-out</label><input type="date" id="f-out"></div>
+    </div>
+    <div class="fg"><label>Importo (€)</label><input type="number" id="f-amt" placeholder="es. 240"></div>
+    <div class="conflict" id="f-conflict"></div>
+    <button class="btn-p" onclick="addBooking()">Aggiungi prenotazione</button>
+    <button class="btn-s" onclick="closeModals()">Annulla</button>
+  </div>
+</div>
+
+<!-- MODAL BLOCCO DATE -->
+<div class="overlay" id="modal-block">
+  <div class="modal">
+    <h2>🔒 Blocca date</h2>
+    <div class="fg"><label>Appartamento</label>
+      <select id="b-apt"><option value="0">AllATTiCO (tutti e 3)</option><option value="1">AllATTiCO n.5 · bilocale</option><option value="2">AllATTiCO n.7 · loft balcone</option><option value="3">AllATTiCO n.23 · loft terrazzo</option></select>
+    </div>
+    <div class="frow">
+      <div class="fg"><label>Dal</label><input type="date" id="b-in"></div>
+      <div class="fg"><label>Al</label><input type="date" id="b-out"></div>
+    </div>
+    <div class="fg"><label>Motivo</label>
+      <select id="b-motivo"><option>Manutenzione</option><option>Uso personale</option><option>Pulizie straordinarie</option><option>In attesa di conferma</option><option>Altro</option></select>
+    </div>
+    <div style="font-size:12px;color:var(--muted);background:var(--bg);border-radius:7px;padding:8px 12px;margin-bottom:8px">
+      📅 Il blocco verrà aggiunto al calendario locale. Per bloccare su Airbnb e Booking, fallo direttamente dalle piattaforme.
+    </div>
+    <div class="conflict" id="b-conflict"></div>
+    <button class="btn-p" onclick="addBlock()">Blocca date</button>
+    <button class="btn-s" onclick="closeModals()">Annulla</button>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">A</div>
+    <h1>AllATTiCO</h1>
+    <p>Inserisci la password per accedere</p>
+    <input
+      class="login-input"
+      type="password"
+      id="login-pwd"
+      placeholder="••••••••"
+      onkeydown="if(event.key==='Enter')checkLogin()"
+      autocomplete="current-password"
+    >
+    <button class="login-btn" onclick="checkLogin()">Accedi</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<script>
+// ── PASSWORD ─────────────────────────────────────────────────
+// Cambia questa password con quella che vuoi usare
+const APP_PASSWORD = 'allattico2026';
+
+function checkLogin() {
+  const pwd = document.getElementById('login-pwd').value;
+  const err = document.getElementById('login-error');
+  if(pwd === APP_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    sessionStorage.setItem('allattico_auth', '1');
+    loadAll();
+  } else {
+    err.textContent = 'Password errata. Riprova.';
+    document.getElementById('login-pwd').value = '';
+    document.getElementById('login-pwd').focus();
+  }
+}
+
+// Se già autenticato in questa sessione, salta il login
+if(sessionStorage.getItem('allattico_auth') === '1') {
+  document.getElementById('login-screen').style.display = 'none';
+}
+</script>
+
+<script>
+// ── CONFIGURAZIONE ────────────────────────────────────────────
+// Sostituisci con la tua nuova chiave API Smoobu (rigenera quella vecchia!)
+const SMOOBU_KEY = 'LA_TUA_NUOVA_CHIAVE_SMOOBU';
+const SMOOBU_API = 'https://login.smoobu.com/api';
+
+// Google Sheets Web App URL (per entrate/spese)
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxGVemUh6IFq-JZQ7GZeNnR3jX6HZMkKO2LoRj8nbV0selMvMaSbb0CMp37SmsiVDtS/exec';
+
+// ID appartamenti Smoobu (dalla pagina Avanzate → Chiavi API)
+const APT_IDS = {
+  0: 1851314,  // AllATTiCO (tutti)
+  1: 1851320,  // n.5
+  2: 1851323,  // n.7
+  3: 1851326,  // n.23
+};
+
+const APTS = [
+  {id:0, name:'AllATTiCO (tutti)', short:'Tutti', smoobuId:1851314},
+  {id:1, name:'AllATTiCO n.5',    short:'n.5',   smoobuId:1851320},
+  {id:2, name:'AllATTiCO n.7',    short:'n.7',   smoobuId:1851323},
+  {id:3, name:'AllATTiCO n.23',   short:'n.23',  smoobuId:1851326},
+];
+
+const MONTHS = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+const MS = ['G','F','M','A','M','G','L','A','S','O','N','D'];
+const PAGE_TITLES = {home:'Homepage',calendario:'Calendario',prenotazioni:'Prenotazioni',messaggi:'Messaggi',statistiche:'Statistiche',spese:'Entrate & Spese'};
+
+let smoobuData = [];     // prenotazioni da Smoobu
+let sheetsData = null;   // entrate/spese da Google Sheets
+let manualBookings = []; // prenotazioni dirette aggiunte dall'utente
+let blocks = [];         // blocchi manuali
+let nextId = 9000;
+let curYear = 2026, curMonth = new Date().getMonth();
+let periodoMode = 'anno', periodoModeSpese = 'anno';
+let currentFilter = 'tutte';
+
+let messages = [
+  {id:1,title:'Conferma prenotazione',timing:'Immediato',body:'Ciao [Nome], grazie per aver prenotato [appartamento]! Ti confermiamo il soggiorno dal [data_in] al [data_out]. Troverai le istruzioni per il check-in 24h prima dell\'arrivo.',active:true,badge:null},
+  {id:2,title:'Istruzioni check-in',timing:'24h prima dell\'arrivo',body:'Ciao [Nome], domani ti aspettiamo in [appartamento]! Il check-in è dalle 15:00. Il codice cassetta chiavi è [codice]. Indirizzo: [indirizzo]. Per qualsiasi necessità scrivici.',active:true,badge:null},
+  {id:3,title:'Benvenuto al check-in',timing:'Giorno di arrivo, ore 15:00',body:'Benvenuto/a [Nome] in [appartamento]! Spero che l\'appartamento sia di tuo gradimento. Per qualsiasi cosa non esitare a contattarmi. Buon soggiorno!',active:true,badge:null},
+  {id:4,title:'Promemoria check-out',timing:'Giorno prima del check-out',body:'Ciao [Nome], ti ricordiamo che domani è previsto il check-out entro le 10:00. Lascia le chiavi nella cassetta e spegni luci e clima. Grazie!',active:true,badge:null},
+  {id:5,title:'Recensione automatica Airbnb',timing:'48h dopo il check-out',body:'Grazie [Nome] per il tuo soggiorno in [appartamento]! È stato un piacere ospitarti. Ospite rispettoso, ha lasciato l\'appartamento in ordine. Lo consiglio! ⭐⭐⭐⭐⭐',active:true,badge:'airbnb'},
+];
+
+// ── FETCH DATI (tutto via Google Apps Script) ─────────────────
+// Lo script GAS chiama Smoobu API server-side (no CORS)
+// e restituisce tutto in una sola chiamata
+async function loadAll() {
+  setSyncBadge('loading','Connessione...');
+  try {
+    const res = await fetch(GAS_URL);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    // Dati Smoobu (prenotazioni)
+    if(data.smoobuError) {
+      console.warn('Smoobu error:', data.smoobuError);
+      setSyncBadge('err','Errore Smoobu — controlla la chiave API nello script');
+    } else {
+      // Mappa bookings Smoobu → formato interno
+      // Struttura reale Smoobu: arrival, departure, price, apartment.id, channel.name
+      smoobuData = (data.smoobuBookings || [])
+        .filter(b => b.type !== 'cancellation')
+        .map(b => {
+          const aptId = Object.entries(APT_IDS).find(([k,v]) => v === b.apartment?.id)?.[0];
+          const plat  = (b.channel?.name||'').toLowerCase();
+          const isBlocked = b['is-blocked-booking'] === true || plat.includes('blocked') || b.type === 'block';
+          return {
+            id:       'smoobu_' + b.id,
+            smoobuId: b.id,
+            apt:      aptId !== undefined ? parseInt(aptId) : -1,
+            guest:    isBlocked ? 'Bloccato' : ([b.firstname, b.lastname].filter(Boolean).join(' ') || 'Prenotato'),
+            checkin:  b.arrival,       // ← campo corretto
+            checkout: b.departure,     // ← campo corretto
+            checkinTime:  b['check-in']  || '15:00',
+            checkoutTime: b['check-out'] || '11:00',
+            platform: isBlocked ? 'Bloccato'
+                    : plat.includes('airbnb')  ? 'Airbnb'
+                    : plat.includes('booking') ? 'Booking'
+                    : 'Diretto',
+            amount:   b.price || 0,    // ← campo corretto
+            isBlock:  isBlocked,
+            adults:   b.adults || 0,
+            children: b.children || 0,
+            notice:   b.notice || '',
+          };
+        })
+        .filter(b => b.apt >= 0 && b.checkin && b.checkout);
+      setSyncBadge('live','Aggiornato · ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}));
+    }
+
+    // Dati Google Sheets (entrate/spese)
+    sheetsData = data;
+
+    updateStats();
+    renderHome();
+    renderCalendar();
+    renderBookings(currentFilter);
+    renderStats();
+    renderSpese();
+
+  } catch(err) {
+    console.error('Load error:', err);
+    setSyncBadge('err','Errore connessione — clicca per riprovare');
+  }
+}
+
+function setSyncBadge(state, text) {
+  document.getElementById('sync-dot').className = 'sync-dot' + (state==='live'?' live':state==='err'?' err':'');
+  document.getElementById('sync-label').textContent = text;
+}
+
+// ── NAVIGAZIONE ───────────────────────────────────────────────
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[name]||name;
+  if(btn) btn.classList.add('active');
+  if(name==='calendario') renderCalendar();
+  if(name==='prenotazioni') renderBookings(currentFilter);
+  if(name==='messaggi') renderMessages();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function fmt(n, decimali=false) {
+  const val = n || 0;
+  if(decimali || (val % 1 !== 0)) {
+    return val.toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+  return Math.round(val).toLocaleString('it-IT');
+}
+function fmtDate(s) { if(!s)return'—'; return s.slice(8,10)+'/'+s.slice(5,7); }
+function aptBySmoobuId(sid) { return APTS.find(a=>a.smoobuId===sid) || APTS[1]; }
+
+function allBookings() {
+  const smoobu = smoobuData.filter(b => !b.isBlock);
+  const smoobuBlocks = smoobuData.filter(b => b.isBlock);
+  const manual = manualBookings;
+  const manBlocks = blocks.map(b=>({...b, guest:'🔒'+b.motivo, platform:'Bloccato', isBlock:true}));
+
+  // Auto-blocchi: singolo occupato → blocco grigio su "tutti"
+  const periodi = [...smoobu, ...manual]
+    .filter(b => b.apt !== 0 && b.checkin && b.checkout)
+    .map(b => ({from:b.checkin, to:b.checkout}))
+    .sort((a,b) => a.from>b.from?1:-1);
+  const merged = [];
+  periodi.forEach(p => {
+    if(!merged.length) { merged.push({...p}); return; }
+    const last = merged[merged.length-1];
+    if(p.from<=last.to) { if(p.to>last.to) last.to=p.to; }
+    else merged.push({...p});
+  });
+  const autoBlocks0 = merged.map((p,i) => ({
+    id:'auto0_'+i, apt:0, guest:'🔒 Appartamenti occupati',
+    checkin:p.from, checkout:p.to, platform:'Bloccato', isBlock:true, isAuto:true,
+  }));
+
+  // "Tutti" prenotato → blocca i singoli
+  const autoBlocksSingoli = [...smoobu,...manual]
+    .filter(b=>b.apt===0)
+    .flatMap(bk=>[1,2,3].map(aptId=>({
+      id:'auto'+aptId+'_'+bk.id, apt:aptId,
+      guest:'🔒 Struttura completa', checkin:bk.checkin, checkout:bk.checkout,
+      platform:'Bloccato', isBlock:true, isAuto:true,
+    })));
+
+  return [...smoobu, ...smoobuBlocks, ...manual, ...autoBlocks0, ...autoBlocksSingoli, ...manBlocks];
+}
+
+// ── STATS ─────────────────────────────────────────────────────
+function updateStats() {
+  const totE = sheetsData?.entrate?.reduce((s,e)=>s+e.importo,0)||0;
+  const totS = sheetsData?.spese?.reduce((s,e)=>s+e.importo,0)||0;
+  document.getElementById('s-entrate').textContent = '€ '+fmt(totE);
+  document.getElementById('s-spese').textContent   = '€ '+fmt(totS);
+  document.getElementById('s-netto').textContent   = '€ '+fmt(totE-totS);
+  document.getElementById('s-prenot').textContent  = smoobuData.filter(b=>!b.isBlock).length;
+}
+
+// ── HOME ──────────────────────────────────────────────────────
+function renderHome() {
+  const today    = new Date().toISOString().slice(0,10);
+  const next14   = new Date(Date.now()+14*86400000).toISOString().slice(0,10);
+  const bks      = allBookings().filter(b=>!b.isBlock && !b.isAuto);
+  const events   = [];
+
+  bks.forEach(b => {
+    const apt = APTS.find(a=>a.id===b.apt)||APTS[1];
+    if(b.checkin>=today && b.checkin<=next14) events.push({type:'in',date:b.checkin,b,apt});
+    else if(b.checkout>=today && b.checkout<=new Date(Date.now()+2*86400000).toISOString().slice(0,10)) events.push({type:'out',date:b.checkout,b,apt});
+    else if(b.checkin<today && b.checkout>today) events.push({type:'stay',date:b.checkout,b,apt});
+  });
+  events.sort((a,b)=>a.date>b.date?1:-1);
+
+  const evEl = document.getElementById('prossimi-eventi');
+  if(!events.length) {
+    evEl.innerHTML='<div class="loading-wrap" style="color:var(--muted)">Nessun evento nei prossimi 14 giorni</div>';
+  } else {
+    evEl.innerHTML = events.slice(0,7).map(ev=>{
+      const lbl = ev.type==='in'?'Check-in':ev.type==='out'?'Check-out':'In soggiorno';
+      const cls = ev.type==='in'?'badge-in':ev.type==='out'?'badge-out':'badge-stay';
+      const d   = new Date(ev.date);
+      const ds  = d.toLocaleDateString('it-IT',{weekday:'short',day:'numeric',month:'short'});
+      const time = ev.type==='in' ? (ev.b.checkinTime||'15:00') : (ev.b.checkoutTime||'11:00');
+      return `<div class="event-row">
+        <span class="evt-badge ${cls}">${lbl}</span>
+        <div class="evt-info"><div class="guest">${ev.b.guest}</div><div class="apt">${ev.apt.name}</div></div>
+        <div class="evt-meta">${ds} · ${time}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Ultime attività (ultime 5 prenotazioni per data checkin)
+  const acts = [...smoobuData].filter(b=>!b.isBlock).sort((a,b)=>b.checkin>a.checkin?1:-1).slice(0,5);
+  document.getElementById('ultime-attivita').innerHTML = acts.length
+    ? acts.map(b=>{
+        const apt = APTS.find(a=>a.id===b.apt)||APTS[1];
+        const col = b.platform==='Airbnb'?'#DC2626':'#1D4ED8';
+        return `<div class="act-row">
+          <div class="act-dot" style="background:${col}"></div>
+          <div class="act-info">
+            <div class="type">${b.platform}</div>
+            <div class="name">${b.guest}</div>
+            <div class="apt">${apt.name} · ${fmtDate(b.checkin)} → ${fmtDate(b.checkout)} · ${b.adults||''} ospiti</div>
+          </div>
+          <div class="act-time" style="text-align:right"><div style="font-weight:600">€ ${fmt(b.amount)}</div></div>
+        </div>`;
+      }).join('')
+    : '<div class="loading-wrap" style="color:var(--muted)">Nessuna prenotazione recente</div>';
+}
+
+// ── CALENDARIO ────────────────────────────────────────────────
+function changeMonth(d) {
+  curMonth+=d;
+  if(curMonth>11){curMonth=0;curYear++;}
+  if(curMonth<0){curMonth=11;curYear--;}
+  renderCalendar();
+}
+
+function renderCalendar() {
+  const lbl = document.getElementById('cal-label');
+  if(lbl) lbl.textContent = MONTHS[curMonth]+' '+curYear;
+  const dim = new Date(curYear,curMonth+1,0).getDate();
+  const todayStr = new Date().toISOString().slice(0,10);
+  const DAY = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  const CELL = 56, ROW_H = 48, BAR_H = 28;
+  const bks = allBookings();
+
+  let html = `<div style="display:flex;border-bottom:1px solid var(--border);background:white;position:sticky;top:0;z-index:3;min-width:${160+dim*CELL}px">`;
+  html += `<div style="flex:0 0 160px;padding:10px 14px;font-size:11px;font-weight:600;color:var(--muted);border-right:1px solid var(--border);text-transform:uppercase;letter-spacing:.5px;position:sticky;left:0;background:white;z-index:4">Appartamento</div>`;
+  for(let d=1;d<=dim;d++){
+    const dt=new Date(curYear,curMonth,d);
+    const ds=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT=ds===todayStr, isW=dt.getDay()===0||dt.getDay()===6;
+    html+=`<div style="flex:0 0 ${CELL}px;text-align:center;padding:5px 0;border-right:1px solid var(--border);background:${isT?'#EFF6FF':isW?'#F9FAFB':'white'}">
+      <div style="font-size:10px;color:var(--muted)">${DAY[dt.getDay()]}</div>
+      <div style="font-size:12px;font-weight:${isT?700:400};width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:2px auto 0;background:${isT?'var(--primary)':'transparent'};color:${isT?'white':'var(--text)'}">${d}</div>
+    </div>`;
+  }
+  html+=`</div>`;
+
+  const monthStr=`${curYear}-${String(curMonth+1).padStart(2,'0')}`;
+  const monthStart=`${monthStr}-01`, monthEnd=`${monthStr}-${String(dim).padStart(2,'0')}`;
+
+  APTS.forEach(apt=>{
+    const aptBks=bks.filter(b=>b.apt===apt.id&&b.checkin<=monthEnd&&b.checkout>=monthStart);
+    let cells='';
+    for(let d=1;d<=dim;d++){
+      const ds=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const dt=new Date(curYear,curMonth,d);
+      const isT=ds===todayStr,isW=dt.getDay()===0||dt.getDay()===6;
+      cells+=`<div style="flex:0 0 ${CELL}px;height:${ROW_H}px;border-right:1px solid var(--border);background:${isT?'#EFF6FF':isW?'#F9FAFB':'white'}"></div>`;
+    }
+    let bars='';
+    aptBks.forEach(bk=>{
+      const vs=bk.checkin<monthStart?monthStart:bk.checkin;
+      const ve=bk.checkout>monthEnd?monthEnd:bk.checkout;
+      if(!vs||!ve||vs>monthEnd||ve<monthStart) return;
+      const sd=parseInt(vs.slice(8,10)), ed=parseInt(ve.slice(8,10));
+      const sh=bk.checkin>=monthStart, eh=bk.checkout<=monthEnd;
+      const lx=sh?(sd-1)*CELL+CELL*0.5:0;
+      const rx=eh?(ed-1)*CELL+CELL*0.5:dim*CELL;
+      const w=Math.max(rx-lx,6);
+      const plat=(bk.platform||'').toLowerCase();
+      let bg,col,avBg,ic;
+      if(bk.isBlock){bg='#E5E7EB';col='#6B7280';avBg='#9CA3AF';ic='🔒';}
+      else if(plat==='airbnb'){bg='#FECDD3';col='#9F1239';avBg='#E11D48';ic='A';}
+      else if(plat==='booking'){bg='#BFDBFE';col='#1E3A5F';avBg='#1D4ED8';ic='B';}
+      else{bg='#BBF7D0';col='#14532D';avBg='#16A34A';ic='D';}
+      const name=bk.guest||'?';
+      const isGen=/^\d|reserved|not avail|prenotato/i.test(name)||bk.isBlock;
+      const init=isGen?ic:name.split(' ').map(w=>w[0]||'').join('').replace(/[^A-Za-z]/g,'').slice(0,2).toUpperCase()||ic;
+      const disp=isGen?`${fmtDate(bk.checkin)}–${fmtDate(bk.checkout)}`:name;
+      const br=sh&&eh?'20px':sh?'20px 0 0 20px':eh?'0 20px 20px 0':'0';
+      const top=(ROW_H-BAR_H)/2;
+      bars+=`<div title="${name} · ${bk.checkin} → ${bk.checkout}"
+        style="position:absolute;left:${lx}px;width:${w}px;top:${top}px;height:${BAR_H}px;
+               background:${bg};color:${col};border-radius:${br};
+               display:flex;align-items:center;padding:0 ${w>26?6:3}px;gap:4px;
+               font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;
+               cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1);z-index:2"
+        onmouseover="this.style.filter='brightness(.9)'" onmouseout="this.style.filter=''">
+        ${w>=24?`<div style="width:16px;height:16px;border-radius:50%;background:${avBg};color:white;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0">${init}</div>`:''}
+        ${w>=64?`<span style="overflow:hidden;text-overflow:ellipsis">${disp}</span>`:''}
+      </div>`;
+    });
+
+    html+=`<div style="display:flex;border-bottom:1px solid var(--border);min-width:${160+dim*CELL}px">
+      <div style="flex:0 0 160px;padding:0 14px;font-size:12px;font-weight:500;color:var(--muted);display:flex;align-items:center;border-right:1px solid var(--border);background:white;position:sticky;left:0;z-index:1;white-space:nowrap">${apt.name}</div>
+      <div style="position:relative;display:flex;flex:0 0 ${dim*CELL}px">${cells}${bars}</div>
+    </div>`;
+  });
+
+  const g=document.getElementById('cal-grid');
+  if(g) g.innerHTML=html;
+}
+
+// ── PRENOTAZIONI ──────────────────────────────────────────────
+function renderBookings(filter) {
+  currentFilter=filter;
+  const today=new Date().toISOString().slice(0,10);
+  let bks=[...allBookings()].filter(b=>!b.isAuto).sort((a,b)=>a.checkin>b.checkin?-1:1);
+  if(filter==='airbnb') bks=bks.filter(b=>b.platform==='Airbnb');
+  else if(filter==='booking') bks=bks.filter(b=>b.platform==='Booking');
+  else if(filter==='n5') bks=bks.filter(b=>b.apt===1);
+  else if(filter==='n7') bks=bks.filter(b=>b.apt===2);
+  else if(filter==='n23') bks=bks.filter(b=>b.apt===3);
+  else if(filter==='tutti') bks=bks.filter(b=>b.apt===0);
+  else if(filter==='incorso') bks=bks.filter(b=>b.checkin<=today&&b.checkout>today);
+  else if(filter==='arrivo') bks=bks.filter(b=>b.checkin>today);
+  const list=document.getElementById('bookings-list');
+  if(!bks.length){list.innerHTML='<div class="loading-wrap">Nessuna prenotazione trovata</div>';return;}
+  list.innerHTML=bks.map(b=>{
+    const apt=APTS.find(a=>a.id===b.apt)||APTS[1];
+    const nights=Math.round((new Date(b.checkout)-new Date(b.checkin))/86400000);
+    const pc=b.isBlock?'p-blocked':b.platform==='Airbnb'?'p-airbnb':b.platform==='Booking'?'p-booking':'p-diretto';
+    const status=b.isBlock?'Bloccato':b.checkout<today?'Conclusa':b.checkin<=today?'In corso':'In arrivo';
+    const dotCol=b.isBlock?'#9CA3AF':b.platform==='Airbnb'?'#DC2626':b.platform==='Booking'?'#1D4ED8':'#16A34A';
+    return `<div class="bk-row">
+      <div class="bk-dot" style="background:${dotCol}"></div>
+      <div class="bk-info"><h3>${b.guest}</h3><p>${apt.name} · ${nights} nott${nights===1?'e':'i'} · ${status}</p></div>
+      <div class="bk-dates"><strong>€ ${fmt(b.amount)}</strong>${fmtDate(b.checkin)} → ${fmtDate(b.checkout)}</div>
+      <span class="bk-plat ${pc}">${b.platform||'—'}</span>
+    </div>`;
+  }).join('');
+}
+
+function filterB(f,btn){
+  document.querySelectorAll('.chip').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBookings(f);
+}
+
+// ── MESSAGGI ──────────────────────────────────────────────────
+function renderMessages(){
+  document.getElementById('msg-list').innerHTML=messages.map(m=>`
+    <div class="msg-card">
+      <div class="msg-head">
+        <input class="msg-title-in" value="${m.title}" onchange="saveMsg(${m.id},'title',this.value)">
+        <input class="msg-timing-in" value="${m.timing}" onchange="saveMsg(${m.id},'timing',this.value)">
+        ${m.badge==='airbnb'?'<span class="badge-airbnb">Solo Airbnb</span>':''}
+      </div>
+      <textarea class="msg-body-in" onchange="saveMsg(${m.id},'body',this.value)">${m.body}</textarea>
+      <div class="msg-foot">
+        <button class="toggle${m.active?' on':''}" onclick="toggleMsg(${m.id},this)"></button>
+        <span class="toggle-lbl">${m.active?'Attivo':'Non attivo'}</span>
+        <span class="save-ok" id="saved-${m.id}">✓ Salvato</span>
+      </div>
+    </div>`).join('');
+}
+function saveMsg(id,f,v){const m=messages.find(x=>x.id===id);if(m)m[f]=v;const el=document.getElementById('saved-'+id);if(el){el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2000);}}
+function toggleMsg(id,btn){const m=messages.find(x=>x.id===id);if(!m)return;m.active=!m.active;btn.classList.toggle('on');btn.nextElementSibling.textContent=m.active?'Attivo':'Non attivo';}
+
+// ── FILTRI PERIODO ────────────────────────────────────────────
+function getBounds(mode,prefix=''){
+  const yr=2026;
+  if(mode==='anno') return {from:`${yr}-01-01`,to:`${yr}-12-31`,lbl:`Anno ${yr}`};
+  if(mode==='trimestre'){
+    const q=parseInt(document.getElementById(prefix+'trim')?.value||'1');
+    const m={1:[0,2],2:[3,5],3:[6,8],4:[9,11]}[q];
+    const f=`${yr}-${String(m[0]+1).padStart(2,'0')}-01`;
+    const ld=new Date(yr,m[1]+1,0).getDate();
+    const t=`${yr}-${String(m[1]+1).padStart(2,'0')}-${ld}`;
+    return{from:f,to:t,lbl:`Q${q} ${yr}`};
+  }
+  if(mode==='mese'){
+    const mo=parseInt(document.getElementById(prefix+'mese')?.value||'0');
+    const f=`${yr}-${String(mo+1).padStart(2,'0')}-01`;
+    const ld=new Date(yr,mo+1,0).getDate();
+    const t=`${yr}-${String(mo+1).padStart(2,'0')}-${ld}`;
+    return{from:f,to:t,lbl:MONTHS[mo]+' '+yr};
+  }
+  const f=document.getElementById(prefix+'from')?.value||`${yr}-01-01`;
+  const t=document.getElementById(prefix+'to')?.value||`${yr}-12-31`;
+  return{from:f,to:t,lbl:`${f}→${t}`};
+}
+function filterPeriod(items,from,to){return items.filter(x=>x.data>=from&&x.data<=to);}
+function setPeriodo(mode,btn){
+  periodoMode=mode;
+  document.querySelectorAll('#page-statistiche .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['f-trimestre','f-mese','f-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  if(mode==='trimestre')document.getElementById('f-trimestre').style.display='block';
+  if(mode==='mese')document.getElementById('f-mese').style.display='block';
+  if(mode==='custom')document.getElementById('f-custom').style.display='flex';
+  aggiornaStats();
+}
+function setPeriodoSpese(mode,btn){
+  periodoModeSpese=mode;
+  document.querySelectorAll('#page-spese .tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['fs-trimestre','fs-mese','fs-custom'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  if(mode==='trimestre')document.getElementById('fs-trimestre').style.display='block';
+  if(mode==='mese')document.getElementById('fs-mese').style.display='block';
+  if(mode==='custom')document.getElementById('fs-custom').style.display='flex';
+  aggiornaSpese();
+}
+function aggiornaStats(){if(sheetsData)renderStats();}
+function aggiornaSpese(){if(sheetsData)renderSpese();}
+
+// ── STATISTICHE ───────────────────────────────────────────────
+function renderStats(){
+  if(!sheetsData)return;
+  document.getElementById('stats-loading').style.display='none';
+  document.getElementById('stats-content').style.display='block';
+  const {from,to,lbl}=getBounds(periodoMode,'sel-');
+  const lbl2=document.getElementById('periodo-lbl');if(lbl2)lbl2.textContent=lbl;
+  const E=filterPeriod(sheetsData.entrate||[],from,to);
+  const S=filterPeriod(sheetsData.spese||[],from,to);
+  const comm=S.filter(s=>s.tipo==='Commissioni piattaforma');
+  const transazioni=S.filter(s=>s.tipo==='Transazioni carta Booking');
+  const altreS=S.filter(s=>s.tipo!=='Commissioni piattaforma' && s.tipo!=='Transazioni carta Booking');
+  const totE=E.reduce((s,e)=>s+e.importo,0);
+  const totComm=comm.reduce((s,e)=>s+e.importo,0);
+  const totTrans=transazioni.reduce((s,e)=>s+e.importo,0);
+  const totNette=totE-totComm;
+  const totAltreS=altreS.reduce((s,e)=>s+e.importo,0);
+  const totNetto=totNette-totTrans-totAltreS;
+  // Dividi commissioni per piattaforma usando la colonna CLIENTE dal foglio (preciso)
+  const commAirbnb  = comm.filter(s=>(s.cliente||s.piattaforma||'').toUpperCase()==='AIRBNB').reduce((s,e)=>s+e.importo,0);
+  const commBooking = comm.filter(s=>(s.cliente||s.piattaforma||'').toUpperCase()==='BOOKING').reduce((s,e)=>s+e.importo,0);
+  const commAltro   = totComm - commAirbnb - commBooking; // eventuale residuo
+  // KPI ricevuto (da Google Sheets)
+  document.getElementById('k-lorde').textContent='€ '+fmt(totE,true);
+  document.getElementById('k-comm').textContent='− € '+fmt(totComm,true);
+  document.getElementById('k-nette').textContent='€ '+fmt(totNette,true);
+  document.getElementById('k-netto').textContent='€ '+fmt(totNetto,true);
+
+  // KPI stimato (da Smoobu — tutte le prenotazioni nel periodo)
+  const smoobuPeriodo = smoobuData.filter(b=>!b.isBlock && b.checkin>=from && b.checkin<=to);
+  const totStimate = smoobuPeriodo.reduce((s,b)=>s+b.amount,0);
+  const totDaRicevere = Math.max(0, totStimate - totE);
+  const mediaPerPrenot = smoobuPeriodo.length ? totStimate/smoobuPeriodo.length : 0;
+  document.getElementById('k-stimate').textContent='€ '+fmt(totStimate,true);
+  document.getElementById('k-daricevere').textContent='€ '+fmt(totDaRicevere,true);
+  document.getElementById('k-prenot').textContent=smoobuPeriodo.length;
+  document.getElementById('k-media').textContent='€ '+fmt(mediaPerPrenot,true);
+  // Barre mensili
+  if(periodoMode==='anno'){
+    const mE=Array(12).fill(0);
+    E.forEach(e=>{const m=parseInt(e.data.slice(5,7))-1;if(m>=0&&m<12)mE[m]+=e.importo;});
+    const mx=Math.max(...mE.filter(v=>v>0))||1;
+    document.getElementById('month-bars').innerHTML=MS.map((m,i)=>{
+      const h=mE[i]?Math.round(mE[i]/mx*60):2;
+      return`<div class="mb-col"><div class="mb-bar" style="height:${h}px;background:${mE[i]?'var(--primary)':'var(--border)'}"></div><div class="mb-lbl">${m}</div></div>`;
+    }).join('');
+  } else {
+    document.getElementById('month-bars').innerHTML=`<div style="width:100%;text-align:center;color:var(--muted);font-size:13px;padding:20px 0">Totale: <strong style="color:var(--text)">€ ${fmt(totE)}</strong></div>`;
+  }
+  // Lorde vs Nette
+  const maxLN=Math.max(totE,commAirbnb,commBooking,totNette,totTrans,totAltreS)||1;
+  document.getElementById('lordo-netto-bars').innerHTML=[
+    {lbl:'Entrate lorde',           val:totE,        col:'var(--primary)', indent:false},
+    {lbl:'· Commissioni Airbnb',    val:commAirbnb,  col:'#DC2626',        indent:true},
+    {lbl:'· Commissioni Booking',   val:commBooking, col:'#1D4ED8',        indent:true},
+    {lbl:'Entrate nette',           val:totNette,    col:'#0891B2',        indent:false},
+    {lbl:'· Trans. carta Booking',  val:totTrans,    col:'#7C3AED',        indent:true},
+    {lbl:'· Altre spese',           val:totAltreS,   col:'var(--orange)',  indent:true},
+    {lbl:'Netto finale',            val:totNetto,    col:'var(--green)',   indent:false},
+  ].map(({lbl,val,col,indent})=>{
+    const pct=Math.round(val/maxLN*100);
+    return`<div class="bar-row" style="${indent?'padding-left:18px;opacity:.9':'font-weight:500'}">
+      <div class="bar-lbl" style="color:${col}">${lbl}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${Math.max(pct,1)}%;background:${col}"></div></div>
+      <div class="bar-val" style="color:${col}">€${fmt(val,true)}</div>
+    </div>`;
+  }).join('');
+  // Per appartamento — stimate da Smoobu
+  const aptE={0:0,1:0,2:0,3:0};
+  smoobuPeriodo.forEach(b=>{if(aptE[b.apt]!==undefined)aptE[b.apt]+=b.amount;});
+  const totA=Object.values(aptE).reduce((s,v)=>s+v,0)||1;
+  const aptC={0:'var(--apt0)',1:'var(--apt1)',2:'var(--apt2)',3:'var(--apt3)'};
+  document.getElementById('apt-bars').innerHTML=APTS.filter(a=>aptE[a.id]>0).map(a=>{
+    const pct=Math.round(aptE[a.id]/totA*100);
+    return`<div class="bar-row"><div class="bar-lbl">${a.name}</div><div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${aptC[a.id]}"></div></div><div class="bar-val">€${fmt(aptE[a.id],true)}</div></div>`;
+  }).join('')||'<div style="color:var(--muted);font-size:12px">Nessun dato</div>';
+  // Per piattaforma — stimate da Smoobu nel periodo
+  const piatt={Airbnb:0,Booking:0,Diretto:0};
+  smoobuPeriodo.forEach(b=>{if(piatt[b.platform]!==undefined)piatt[b.platform]+=b.amount;});
+  const totP=Object.values(piatt).reduce((s,v)=>s+v,0)||1;
+  document.getElementById('piatt-bars').innerHTML=Object.entries(piatt).map(([k,v])=>{
+    const pct=Math.round(v/totP*100);
+    const col=k==='Airbnb'?'#DC2626':k==='Booking'?'#1D4ED8':'#16A34A'; return`<div class="bar-row"><div class="bar-lbl">${k}</div><div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><div class="bar-val">${pct}% · €${fmt(v,true)}</div></div>`;
+  }).join('');
+  // Spese categorie
+  const cats={};S.forEach(s=>{cats[s.tipo]=(cats[s.tipo]||0)+s.importo;});
+  document.getElementById('spese-cats').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+    const pct=Math.round(v/(Object.values(cats).reduce((s,x)=>s+x,0)||1)*100);
+    return`<div class="bar-row"><div class="bar-lbl">${k}</div><div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:var(--orange)"></div></div><div class="bar-val" style="color:var(--red)">−€${fmt(v)}</div></div>`;
+  }).join('')||'<div style="color:var(--muted);font-size:12px">Nessuna spesa</div>';
+  // Confronto
+  const diff=new Date(to)-new Date(from);
+  const pTo=new Date(new Date(from).getTime()-86400000).toISOString().slice(0,10);
+  const pFrom=new Date(new Date(pTo).getTime()-diff).toISOString().slice(0,10);
+  const pE=filterPeriod(sheetsData.entrate||[],pFrom,pTo);
+  const pS=filterPeriod(sheetsData.spese||[],pFrom,pTo);
+  const pTotE=pE.reduce((s,e)=>s+e.importo,0);
+  const pComm=pS.filter(s=>s.tipo==='Commissioni piattaforma').reduce((s,e)=>s+e.importo,0);
+  const pNetto=pTotE-pComm-pS.filter(s=>s.tipo!=='Commissioni piattaforma').reduce((s,e)=>s+e.importo,0);
+  const delta=(curr,prev)=>{if(!prev)return'';const p=Math.round((curr-prev)/prev*100);const c=p>=0?'var(--green)':'var(--red)';return`<span style="color:${c};font-size:11px;margin-left:6px">${p>=0?'▲':'▼'}${Math.abs(p)}%</span>`;};
+  document.getElementById('confronto').innerHTML=`
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Periodo prec.: ${pFrom.slice(0,7)} → ${pTo.slice(0,7)}</div>
+    <div class="fin-row"><span class="ft">Entrate lorde</span><span class="fv">€${fmt(pTotE)} → <strong>€${fmt(totE)}</strong>${delta(totE,pTotE)}</span></div>
+    <div class="fin-row"><span class="ft">Netto finale</span><span class="fv">€${fmt(pNetto)} → <strong>€${fmt(totNetto)}</strong>${delta(totNetto,pNetto)}</span></div>`;
+}
+
+// ── ENTRATE & SPESE ───────────────────────────────────────────
+function renderSpese(){
+  if(!sheetsData)return;
+  document.getElementById('spese-loading').style.display='none';
+  document.getElementById('spese-content').style.display='block';
+  const {from,to}=getBounds(periodoModeSpese,'ss-');
+  const E=filterPeriod(sheetsData.entrate||[],from,to);
+  const S=filterPeriod(sheetsData.spese||[],from,to);
+  const comm=S.filter(s=>s.tipo==='Commissioni piattaforma');
+  const transazioni=S.filter(s=>s.tipo==='Transazioni carta Booking');
+  const altreS=S.filter(s=>s.tipo!=='Commissioni piattaforma'&&s.tipo!=='Transazioni carta Booking');
+  const totE=E.reduce((s,e)=>s+e.importo,0);
+  const totComm=comm.reduce((s,e)=>s+e.importo,0);
+  const totTrans=transazioni.reduce((s,e)=>s+e.importo,0);
+  const totNette=totE-totComm;
+  const totAltreS=altreS.reduce((s,e)=>s+e.importo,0);
+  const totNetto=totNette-totTrans-totAltreS;
+  document.getElementById('r-anno').innerHTML=`
+    <div class="fin-row"><span class="ft">Entrate lorde</span><span class="fv pos">+ € ${fmt(totE,true)}</span></div>
+    <div class="fin-row"><span class="ft" style="padding-left:12px">· Commissioni piattaforma</span><span class="fv neg">− € ${fmt(totComm,true)}</span></div>
+    <div class="fin-row"><span class="ft"><strong>Entrate nette</strong></span><span class="fv pos"><strong>+ € ${fmt(totNette,true)}</strong></span></div>
+    <div class="fin-row"><span class="ft" style="padding-left:12px">· Transazioni carta Booking</span><span class="fv neg">− € ${fmt(totTrans,true)}</span></div>
+    <div class="fin-row"><span class="ft" style="padding-left:12px">· Altre spese</span><span class="fv neg">− € ${fmt(totAltreS,true)}</span></div>
+    <div class="fin-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:10px"><span style="font-weight:600">Netto finale</span><span class="fv pos" style="font-size:15px">+ € ${fmt(totNetto,true)}</span></div>`;
+  // Per appartamento (da Smoobu amount)
+  const aptE={0:0,1:0,2:0,3:0};
+  smoobuData.filter(b=>!b.isBlock&&b.checkin>=from&&b.checkin<=to).forEach(b=>{if(aptE[b.apt]!==undefined)aptE[b.apt]+=b.amount;});
+  document.getElementById('r-apt').innerHTML=APTS.filter(a=>aptE[a.id]>0).map(a=>`<div class="fin-row"><span class="ft">${a.name}</span><span class="fv pos">+ € ${fmt(aptE[a.id])}</span></div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun dato</div>';
+  // Categorie spese
+  const cats={};S.forEach(s=>{cats[s.tipo]=(cats[s.tipo]||0)+s.importo;});
+  document.getElementById('r-cats').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="fin-row"><span class="ft">${k}</span><span class="fv neg">− € ${fmt(v)}</span></div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessuna spesa</div>';
+  // Movimenti
+  const mov=[...E.map(e=>({...e,segno:'+',cls:'pos'})),...S.map(s=>({...s,importo:-s.importo,segno:'-',cls:'neg'}))].sort((a,b)=>b.data>a.data?1:-1);
+  document.getElementById('r-mov').innerHTML=mov.map(m=>`<div class="fin-row"><span class="ft">${m.data.slice(8,10)}/${m.data.slice(5,7)} · ${m.tipo||''}</span><span class="fv ${m.cls}">${m.segno} € ${fmt(Math.abs(m.importo), true)}</span></div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun movimento</div>';
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function openModal(type) {
+  if(type==='booking') document.getElementById('modal-booking').classList.add('open');
+  else document.getElementById('modal-block').classList.add('open');
+}
+function closeModals() {
+  document.querySelectorAll('.overlay').forEach(o=>o.classList.remove('open'));
+}
+
+function addBooking() {
+  const apt=parseInt(document.getElementById('f-apt').value);
+  const guest=document.getElementById('f-name').value.trim();
+  const checkin=document.getElementById('f-in').value;
+  const checkout=document.getElementById('f-out').value;
+  const amount=parseInt(document.getElementById('f-amt').value)||0;
+  const alertEl=document.getElementById('f-conflict');
+  alertEl.style.display='none';
+  if(!guest||!checkin||!checkout){alertEl.innerHTML='Compila tutti i campi.';alertEl.style.display='block';return;}
+  if(checkin>=checkout){alertEl.innerHTML='Check-out deve essere dopo check-in.';alertEl.style.display='block';return;}
+  manualBookings.push({id:nextId++,apt,guest,checkin,checkout,platform:'Diretto',amount,isReal:true});
+  closeModals();
+  ['f-name','f-in','f-out','f-amt'].forEach(id=>document.getElementById(id).value='');
+  renderCalendar();renderBookings(currentFilter);renderHome();
+}
+
+function addBlock() {
+  const apt=parseInt(document.getElementById('b-apt').value);
+  const checkin=document.getElementById('b-in').value;
+  const checkout=document.getElementById('b-out').value;
+  const motivo=document.getElementById('b-motivo').value;
+  const alertEl=document.getElementById('b-conflict');
+  alertEl.style.display='none';
+  if(!checkin||!checkout){alertEl.innerHTML='Seleziona le date.';alertEl.style.display='block';return;}
+  if(checkin>checkout){alertEl.innerHTML='La data finale deve essere dopo quella iniziale.';alertEl.style.display='block';return;}
+  blocks.push({id:nextId++,apt,checkin,checkout,motivo,platform:'Bloccato',isBlock:true});
+  closeModals();
+  renderCalendar();renderHome();
+}
+
+// ── AVVIO ─────────────────────────────────────────────────────
+renderCalendar();
+renderMessages();
+// loadAll() viene chiamato dopo il login
+// Se già autenticato (sessionStorage), carica subito
+if(sessionStorage.getItem('allattico_auth') === '1') {
+  loadAll();
+}
+</script>
+</body>
+</html>
