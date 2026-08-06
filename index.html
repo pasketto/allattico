@@ -483,7 +483,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 <script>
 // ── PASSWORD ─────────────────────────────────────────────────
 // Cambia questa password con quella che vuoi usare
-const APP_PASSWORD = '%alla226';
+const APP_PASSWORD = 'allattico2026';
 
 function checkLogin() {
   const pwd = document.getElementById('login-pwd').value;
@@ -927,6 +927,14 @@ function setPeriodoSpese(mode,btn){
 function aggiornaStats(){if(sheetsData)renderStats();}
 function aggiornaSpese(){if(sheetsData)renderSpese();}
 
+// ── Categorie spese espandibili ──────────────────────────────
+const catAperte = new Set();
+function toggleCat(nome){
+  if(catAperte.has(nome)) catAperte.delete(nome);
+  else catAperte.add(nome);
+  renderSpese();
+}
+
 // ── STATISTICHE ───────────────────────────────────────────────
 function renderStats(){
   if(!sheetsData)return;
@@ -1061,12 +1069,55 @@ function renderSpese(){
   const aptE={0:0,1:0,2:0,3:0};
   smoobuData.filter(b=>!b.isBlock&&b.checkin>=from&&b.checkin<=to).forEach(b=>{if(aptE[b.apt]!==undefined)aptE[b.apt]+=b.amount;});
   document.getElementById('r-apt').innerHTML=APTS.filter(a=>aptE[a.id]>0).map(a=>`<div class="fin-row"><span class="ft">${a.name}</span><span class="fv pos">+ € ${fmt(aptE[a.id])}</span></div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun dato</div>';
-  // Categorie spese
-  const cats={};S.forEach(s=>{cats[s.tipo]=(cats[s.tipo]||0)+s.importo;});
-  document.getElementById('r-cats').innerHTML=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="fin-row"><span class="ft">${k}</span><span class="fv neg">− € ${fmt(v)}</span></div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessuna spesa</div>';
-  // Movimenti
+  // ── Categorie spese (espandibili: clicca per vedere il dettaglio) ──
+  const cats={}, catVoci={};
+  S.forEach(s=>{
+    const t = s.tipo || 'Altro';
+    cats[t] = (cats[t]||0) + s.importo;
+    (catVoci[t] = catVoci[t] || []).push(s);
+  });
+
+  document.getElementById('r-cats').innerHTML =
+    Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{
+      const aperta = catAperte.has(k);
+      const voci = (catVoci[k]||[]).sort((a,b)=> a.data > b.data ? 1 : -1);
+      let html = `<div class="fin-row" onclick="toggleCat('${k.replace(/'/g,"\\'")}')"
+        style="cursor:pointer;user-select:none">
+        <span class="ft" style="display:flex;align-items:center;gap:6px">
+          <span style="display:inline-block;width:10px;font-size:10px;color:var(--muted);
+                transform:rotate(${aperta?90:0}deg);transition:transform .15s">▶</span>
+          ${k}
+          <span style="font-size:10px;color:var(--muted)">(${voci.length})</span>
+        </span>
+        <span class="fv neg">− € ${fmt(v,true)}</span>
+      </div>`;
+      if(aperta) {
+        html += `<div style="background:var(--bg);border-radius:8px;margin:2px 0 8px;padding:4px 0">` +
+          voci.map(s=>`<div class="fin-row" style="border:none;padding:5px 12px 5px 26px">
+            <span class="ft" style="font-size:12px">
+              <span style="color:var(--muted)">${s.data.slice(8,10)}/${s.data.slice(5,7)}</span>
+              &nbsp;${s.note || '—'}
+            </span>
+            <span class="fv neg" style="font-size:12px">− € ${fmt(s.importo,true)}</span>
+          </div>`).join('') + `</div>`;
+      }
+      return html;
+    }).join('') || '<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessuna spesa</div>';
+
+  // ── Movimenti: mostra la descrizione, non solo la categoria ──
   const mov=[...E.map(e=>({...e,segno:'+',cls:'pos'})),...S.map(s=>({...s,importo:-s.importo,segno:'-',cls:'neg'}))].sort((a,b)=>b.data>a.data?1:-1);
-  document.getElementById('r-mov').innerHTML=mov.map(m=>`<div class="fin-row"><span class="ft">${m.data.slice(8,10)}/${m.data.slice(5,7)} · ${m.tipo||''}</span><span class="fv ${m.cls}">${m.segno} € ${fmt(Math.abs(m.importo), true)}</span></div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun movimento</div>';
+  document.getElementById('r-mov').innerHTML = mov.map(m=>{
+    const desc = m.note || m.tipo || '—';
+    const cat  = m.tipo && m.note ? m.tipo : '';
+    return `<div class="fin-row">
+      <span class="ft" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <span style="color:var(--muted)">${m.data.slice(8,10)}/${m.data.slice(5,7)}</span>
+        &nbsp;${desc}
+        ${cat?`<span style="font-size:10px;color:var(--muted)"> · ${cat}</span>`:''}
+      </span>
+      <span class="fv ${m.cls}" style="white-space:nowrap">${m.segno} € ${fmt(Math.abs(m.importo), true)}</span>
+    </div>`;
+  }).join('') || '<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun movimento</div>';
 }
 
 // ── MODAL ─────────────────────────────────────────────────────
