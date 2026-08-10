@@ -961,7 +961,9 @@ function renderStats(){
   document.getElementById('k-lorde').textContent='€ '+fmt(totE,true);
   document.getElementById('k-comm').textContent='− € '+fmt(totComm,true);
   document.getElementById('k-nette').textContent='€ '+fmt(totNette,true);
-  document.getElementById('k-netto').textContent='€ '+fmt(totNetto,true);
+  const elNetto = document.getElementById('k-netto');
+  elNetto.textContent = (totNetto>=0?'':'− ') + '€ ' + fmt(Math.abs(totNetto),true);
+  elNetto.style.color = totNetto>=0 ? 'var(--green)' : 'var(--red)';
 
   // KPI stimato (da Smoobu — tutte le prenotazioni nel periodo)
   const smoobuPeriodo = smoobuData.filter(b=>!b.isBlock && b.checkin>=from && b.checkin<=to);
@@ -1064,7 +1066,7 @@ function renderSpese(){
     <div class="fin-row"><span class="ft"><strong>Entrate nette</strong></span><span class="fv pos"><strong>+ € ${fmt(totNette,true)}</strong></span></div>
     <div class="fin-row"><span class="ft" style="padding-left:12px">· Transazioni carta Booking</span><span class="fv neg">− € ${fmt(totTrans,true)}</span></div>
     <div class="fin-row"><span class="ft" style="padding-left:12px">· Altre spese</span><span class="fv neg">− € ${fmt(totAltreS,true)}</span></div>
-    <div class="fin-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:10px"><span style="font-weight:600">Netto finale</span><span class="fv pos" style="font-size:15px">+ € ${fmt(totNetto,true)}</span></div>`;
+    <div class="fin-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:10px"><span style="font-weight:600">Netto finale</span><span class="fv ${totNetto>=0?'pos':'neg'}" style="font-size:15px">${totNetto>=0?'+':'−'} € ${fmt(Math.abs(totNetto),true)}</span></div>`;
   // Per appartamento (da Smoobu amount)
   const aptE={0:0,1:0,2:0,3:0};
   smoobuData.filter(b=>!b.isBlock&&b.checkin>=from&&b.checkin<=to).forEach(b=>{if(aptE[b.apt]!==undefined)aptE[b.apt]+=b.amount;});
