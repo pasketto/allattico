@@ -208,6 +208,21 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .tab-row { display: flex; gap: 3px; background: var(--bg); padding: 3px; border-radius: 7px; border: 1px solid var(--border); }
 .tab-btn { padding: 5px 12px; border-radius: 5px; border: none; background: transparent; font-size: 12px; cursor: pointer; color: var(--muted); font-family: 'Inter',sans-serif; transition: all .12s; }
 .tab-btn.active { background: var(--white); color: var(--text); font-weight: 500; box-shadow: var(--shadow); }
+.guida { max-width: 860px; }
+.guida .g-intro { font-size: 13px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+.guida details { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 10px; }
+.guida summary { cursor: pointer; padding: 13px 16px; font-weight: 600; font-size: 14px; list-style: none; display: flex; align-items: center; gap: 8px; }
+.guida summary::-webkit-details-marker { display: none; }
+.guida summary::before { content: '▶'; font-size: 10px; color: var(--muted); transition: transform .15s; }
+.guida details[open] summary::before { transform: rotate(90deg); }
+.guida details > *:not(summary) { margin: 0 16px 12px; }
+.guida p, .guida li { font-size: 13px; line-height: 1.6; }
+.guida ul { padding-left: 18px; }
+.guida li { margin-bottom: 4px; }
+.g-tab { border-collapse: collapse; width: calc(100% - 32px); font-size: 13px; }
+.g-tab td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.g-tab td:first-child { font-weight: 500; white-space: nowrap; width: 1%; padding-right: 16px; }
+@media (max-width: 640px) { .g-tab td:first-child { white-space: normal; } }
 .anno-sel { font-size: 13px; font-weight: 600; padding: 6px 10px; }
 .inv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .inv-table th { text-align: right; font-size: 11px; font-weight: 600; color: var(--muted); padding: 8px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -255,6 +270,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
     <button class="nav-item" onclick="showPage('statistiche',this)"><span class="icon">📊</span>Statistiche</button>
     <button class="nav-item" onclick="showPage('spese',this)"><span class="icon">💶</span>Entrate & Spese</button>
     <button class="nav-item" onclick="showPage('investimento',this)"><span class="icon">🏗️</span>Investimento</button>
+    <button class="nav-item" onclick="showPage('guida',this)"><span class="icon">❓</span>Guida</button>
   </nav>
   <div class="sidebar-bottom">
     <h4>Portali</h4>
@@ -451,6 +467,138 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
       </div>
     </div>
 
+    <!-- GUIDA -->
+    <div id="page-guida" class="page">
+      <div class="guida">
+        <p class="g-intro">Questa pagina spiega da dove arrivano i numeri dell'app, come vengono calcolati e quali regole seguiamo quando inseriamo i dati nel foglio. Clicca su una sezione per aprirla.</p>
+
+        <details open>
+          <summary>1 · Da dove arrivano i dati</summary>
+          <ul>
+            <li><b>Foglio Google “AllATTiCO 2026”, tab Foglio1</b>: tutti i movimenti dal 2026 in poi (incassi, spese, prelievi).</li>
+            <li><b>Tab Storico</b>: tutti i movimenti dal 2021 al 2025, presi dal vecchio file Excel e già corretti. Ogni riga ha in più la colonna <b>TIPO</b> (vedi sezione 7).</li>
+            <li><b>Smoobu</b>: prenotazioni, calendario e cifre “stimate” (incluse le prenotazioni future). Smoobu fornisce solo gli ultimi 6 mesi e il futuro: per gli anni passati le stime non ci sono.</li>
+            <li>I dati si ricaricano ogni volta che apri l'app o clicchi sul pallino “Aggiornato” in alto a destra.</li>
+            <li>Il <b>selettore dell'anno</b> in alto vale per Homepage, Statistiche ed Entrate &amp; Spese. La pagina Investimento mostra sempre tutta la storia.</li>
+          </ul>
+        </details>
+
+        <details>
+          <summary>2 · Entrate &amp; Spese: come si legge il riepilogo</summary>
+          <table class="g-tab">
+            <tr><td>Entrate lorde</td><td>Quanto pagano gli ospiti: per Airbnb i “Guadagni lordi”, per Booking l'“Importo”, più le prenotazioni dirette.</td></tr>
+            <tr><td>Commissioni piattaforma</td><td>Quello che trattengono Airbnb e Booking.</td></tr>
+            <tr><td>Entrate nette</td><td>Entrate lorde meno commissioni.</td></tr>
+            <tr><td>Transazioni carta Booking</td><td>Il costo dei pagamenti con carta gestiti da Booking.</td></tr>
+            <tr><td>Altre spese</td><td>Tutte le altre spese di gestione (vedi categorie, sezione 4), compresi gli <b>interessi</b> del mutuo.</td></tr>
+            <tr><td><b>Netto finale</b></td><td><b>Quanto ha guadagnato davvero la struttura</b> nel periodo.</td></tr>
+            <tr><td>Rimborso capitale mutuo</td><td>La parte della rata che restituisce il debito alla banca (sezione 3). Non è un costo, ma sono soldi usciti.</td></tr>
+            <tr><td>Prelievi soci</td><td>Utili che Vito e Pasquale si sono girati. Non sono costi della struttura.</td></tr>
+            <tr><td><b>Avanzo dopo mutuo e prelievi</b></td><td><b>Quanti soldi restano davvero</b> dopo aver pagato tutto, rata intera compresa. È il numero da guardare per la cassa.</td></tr>
+          </table>
+          <p>Ogni movimento è registrato alla <b>data del pagamento</b> (quando i soldi entrano o escono), non alla data del soggiorno.</p>
+        </details>
+
+        <details>
+          <summary>3 · Il mutuo: perché la rata è divisa in due</summary>
+          <p>Mutuo di <b>140.000 €</b>, tasso fisso <b>1,67%</b>, <b>300 rate</b> mensili (25 anni), rogito 20/05/2021, prima rata 20/06/2021. La rata da contratto è <b>571,16 €</b>; la banca addebita <b>575,91 €</b> perché aggiunge 4,75 € di spese di incasso.</p>
+          <p>Ogni rata viene divisa automaticamente in base al piano di ammortamento:</p>
+          <ul>
+            <li><b>Interessi</b> → sono il vero costo del finanziamento: vanno tra le spese (categoria <i>Interessi mutuo</i>) e abbassano il netto. All'inizio sono circa 190 € al mese e scendono nel tempo.</li>
+            <li><b>Quota capitale</b> → restituisce alla banca i soldi con cui abbiamo comprato la casa. Non è una perdita (il debito scende della stessa cifra), quindi compare sotto il netto come “Rimborso capitale mutuo”. All'inizio circa 380 € al mese, poi sale.</li>
+            <li><b>4,75 €</b> → spese bancarie.</li>
+          </ul>
+          <p>Somma delle tre parti = rata intera pagata. Il debito ancora da restituire è nella pagina Investimento, riquadro “Mutuo”.</p>
+        </details>
+
+        <details>
+          <summary>4 · Categorie delle spese</summary>
+          <p>Le categorie sono assegnate in automatico leggendo la descrizione (NOTE). Sono poche apposta; quello che non rientra va in <b>Altro</b>.</p>
+          <table class="g-tab">
+            <tr><td>Commissioni piattaforma</td><td>Commissioni Airbnb e Booking.</td></tr>
+            <tr><td>Transazioni carta Booking</td><td>Costi dei pagamenti con carta su Booking.</td></tr>
+            <tr><td>Interessi mutuo</td><td>Parte interessi della rata.</td></tr>
+            <tr><td>Utenze</td><td>Luce e gas (Sorgenia, bollette), acqua (Acquedotto Lucano).</td></tr>
+            <tr><td>Internet</td><td>Fastweb, Vodafone.</td></tr>
+            <tr><td>Gestionale</td><td>Smoobu.</td></tr>
+            <tr><td>Tasse e tributi</td><td>IMU, TARI, F24, IRPEF, diritto camerale, tassa di soggiorno versata.</td></tr>
+            <tr><td>Assicurazione</td><td>Polizze sull'immobile.</td></tr>
+            <tr><td>Commercialista</td><td>Commercialista, contabilità.</td></tr>
+            <tr><td>Biancheria</td><td>Cambi biancheria, lenzuola, asciugamani.</td></tr>
+            <tr><td>Pulizie</td><td>Pulizie.</td></tr>
+            <tr><td>Forniture</td><td>Consumabili: acqua, caffè, colazione, carta, detersivi, saponi…</td></tr>
+            <tr><td>Manutenzione</td><td>Riparazioni e interventi: fabbro, idraulico, elettricista, caldaia, ricambi…</td></tr>
+            <tr><td>Arredi e attrezzature</td><td>Mobili, TV, elettrodomestici, lampade, tende…</td></tr>
+            <tr><td>Spese bancarie</td><td>Canone conto, bolli, commissioni bancarie.</td></tr>
+            <tr><td>Rimborsi ospiti</td><td>Rimborsi o correzioni a favore degli ospiti.</td></tr>
+            <tr><td>Altro</td><td>Tutto il resto (regali, viaggi, voci occasionali).</td></tr>
+          </table>
+          <p>Clicca su una categoria in Entrate &amp; Spese per vedere le singole voci.</p>
+        </details>
+
+        <details>
+          <summary>5 · Statistiche: incassato e stimato</summary>
+          <ul>
+            <li><b>Incassato</b> (dal foglio): soldi davvero arrivati, alla data del pagamento.</li>
+            <li><b>Stimato</b> (da Smoobu): valore di tutte le prenotazioni con check-in nel periodo, anche quelle non ancora pagate. “Da ricevere” = stimato meno incassato.</li>
+            <li>Per gli anni passati la parte stimata non compare e la ripartizione per piattaforma usa gli incassi del foglio.</li>
+          </ul>
+        </details>
+
+        <details>
+          <summary>6 · Investimento: cosa significano i numeri</summary>
+          <table class="g-tab">
+            <tr><td>Costo totale della struttura</td><td>Tutto quello che è stato speso per comprare, ristrutturare e allestire la casa fino all'apertura (luglio 2023): acquisto 175.000 € (35.000 di acconto + 140.000 col mutuo), notaio, lavori, tecnici, arredi, bollette e interessi pagati prima di aprire.</td></tr>
+            <tr><td>Bonus incassati</td><td>Crediti fiscali dei lavori, ceduti e incassati sul conto.</td></tr>
+            <tr><td>Costo al netto dei bonus</td><td>Costo totale meno bonus: quanto è costata davvero la struttura.</td></tr>
+            <tr><td>Rientrato con gli affitti</td><td>La somma dei “netti finali” di tutti gli anni di attività.</td></tr>
+            <tr><td>Ancora da recuperare</td><td>Costo al netto dei bonus meno quanto è rientrato con gli affitti. Comprende anche il mutuo ancora da restituire.</td></tr>
+          </table>
+          <ul>
+            <li><b>Quanto è costata la struttura</b>: le voci di spesa, con chi le ha pagate. Clicca una voce per vedere ogni singola spesa.</li>
+            <li><b>Chi ha messo i soldi</b>: una scheda per persona con il totale e dove sono finiti i suoi soldi. Comprende anche le rate del mutuo (quota capitale) e le spese di gestione pagate di tasca propria. Se una parte era un prestito, è scritto accanto al nome.</li>
+            <li><b>Conto AllATTiCO</b>: spese pagate dal conto della struttura, quindi con i soldi dei bonus, dei prestiti e degli affitti. <b>Mutuo banca</b>: i 140.000 € versati dalla banca al rogito.</li>
+            <li><b>Bonus fiscali</b>: per ogni bonus, quanto sono costati i lavori collegati e quanto è stato incassato. Il bonus 50% non è stato recuperato.</li>
+            <li><b>Prestiti in famiglia</b>: soldi prestati da familiari da restituire (papà 14.180 €) o già restituiti (zia Anna 31.000 €).</li>
+          </ul>
+        </details>
+
+        <details>
+          <summary>7 · Regole per inserire i dati nel foglio</summary>
+          <table class="g-tab">
+            <tr><td>USCITE / ENTRATE</td><td>Le spese vanno col segno meno in USCITE; gli incassi in ENTRATE.</td></tr>
+            <tr><td>CLIENTE</td><td><b>AIRBNB</b> o <b>BOOKING</b> per gli incassi e le commissioni delle piattaforme; <b>DIRETTO</b> per le prenotazioni dirette (sito, bonifico, contanti, amici).</td></tr>
+            <tr><td>Commissioni</td><td>Ogni incasso Airbnb/Booking ha la sua riga di commissione (e per Booking anche la “transazione”), con lo stesso CLIENTE.</td></tr>
+            <tr><td>MOTIVO = PRELIEVO</td><td>Per i prelievi dei soci; in CLIENTE il nome (VITO, PASQUALE). Non sono spese.</td></tr>
+            <tr><td>BANCA</td><td><b>AGRICOLE</b> per i movimenti del conto; <b>PADRE</b> per le spese pagate in contanti da papà.</td></tr>
+            <tr><td>APPARTAMENTO</td><td>Il nome dell'annuncio per Airbnb; vuoto per Booking.</td></tr>
+            <tr><td>Tassa di soggiorno</td><td>Quella incassata con PayPal per conto del Comune non si registra.</td></tr>
+            <tr><td>Doppioni</td><td>Se una spesa compare sia nel conto sia negli appunti di papà, va inserita una volta sola.</td></tr>
+          </table>
+          <p><b>Solo nel tab Storico</b>: MOTIVO indica <b>chi ha pagato</b> (VITO, PASQUALE, PAPA', ZIA ANNA, AllATTiCO = conto della struttura, MUTUO = banca) e la colonna <b>TIPO</b> separa i movimenti:</p>
+          <table class="g-tab">
+            <tr><td>GESTIONE</td><td>Affitti e spese correnti: entrano nel netto.</td></tr>
+            <tr><td>INVESTIMENTO</td><td>Acquisto, lavori e allestimento fino all'apertura (luglio 2023).</td></tr>
+            <tr><td>BONUS</td><td>Incassi dei crediti fiscali.</td></tr>
+            <tr><td>FINANZIAMENTO</td><td>Prestiti ricevuti, loro restituzione e il mutuo.</td></tr>
+          </table>
+        </details>
+
+        <details>
+          <summary>8 · Piccolo glossario</summary>
+          <table class="g-tab">
+            <tr><td>SAL</td><td>Stato di avanzamento lavori: i lavori si pagano a tappe e, per i bonus 110%, a ogni SAL matura una parte del credito.</td></tr>
+            <tr><td>Cessione del credito</td><td>Il bonus non viene detratto dalle tasse ma “venduto” a banca/impresa, che lo paga in soldi sul conto.</td></tr>
+            <tr><td>Sismabonus 110%</td><td>Bonus per i lavori antisismici sulla struttura.</td></tr>
+            <tr><td>Ecobonus 110%</td><td>Bonus per i lavori di efficienza energetica (isolamento, impianti, infissi).</td></tr>
+            <tr><td>Bonus 50%</td><td>Bonus ristrutturazione: nel nostro caso non recuperato.</td></tr>
+            <tr><td>Ammortamento francese</td><td>Rata sempre uguale: all'inizio è quasi tutta interessi, col tempo diventa quasi tutta capitale.</td></tr>
+            <tr><td>Credito d'imposta di Vito</td><td>L'IRPEF dell'attico 2025 (1.801 €) e 2026 (511 €) è stata compensata con un credito personale di Vito, a cui la struttura ha poi rimborsato la cifra.</td></tr>
+          </table>
+        </details>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -566,7 +714,7 @@ const APTS = [
 
 const MONTHS = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 const MS = ['G','F','M','A','M','G','L','A','S','O','N','D'];
-const PAGE_TITLES = {home:'Homepage',calendario:'Calendario',prenotazioni:'Prenotazioni',messaggi:'Messaggi',statistiche:'Statistiche',spese:'Entrate & Spese',investimento:'Investimento'};
+const PAGE_TITLES = {home:'Homepage',calendario:'Calendario',prenotazioni:'Prenotazioni',messaggi:'Messaggi',statistiche:'Statistiche',spese:'Entrate & Spese',investimento:'Investimento',guida:'Guida'};
 
 let smoobuData = [];     // prenotazioni da Smoobu
 let sheetsData = null;   // entrate/spese da Google Sheets
