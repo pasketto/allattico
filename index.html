@@ -435,7 +435,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
     <div id="page-investimento" class="page">
       <div id="inv-loading" class="loading-wrap"><div class="spinner"></div>Caricamento...</div>
       <div id="inv-content" style="display:none">
-        <div class="stats-row" id="inv-kpi"></div>
+        <div class="stats-row" id="inv-kpi" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))"></div>
         <div class="card"><div class="card-header"><h3>Quanto è costata la struttura</h3><span style="font-size:11px;color:var(--muted)">clicca una voce per vedere le singole spese</span></div>
           <div style="padding:0 16px 8px"><div id="inv-voci"></div></div></div>
         <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:20px 0 8px">Chi ha messo i soldi e dove sono andati</div>
@@ -1298,6 +1298,7 @@ function renderInvestimento(){
   document.getElementById('inv-kpi').innerHTML = [
     ['Costo totale della struttura', eur(totInv), 'acquisto, lavori e allestimento', ''],
     ['Bonus incassati', eur(totBon), Math.round(totBon/totInv*100)+'% del costo', 'var(--green)'],
+    ['Costo al netto dei bonus', eur(totInv-totBon), 'quanto è costata davvero', ''],
     ['Rientrato con gli affitti', eur(utileGest), 'utile di gestione dal '+(yrs.find(y=>anni[y].ent>0)||''), utileGest>=0?'var(--green)':'var(--red)'],
     ['Ancora da recuperare', eur(daRecuperare), mutuoCap?'di cui '+eur(mutuoResiduo)+' è il mutuo da finire':'', 'var(--orange)'],
   ].map(([l,v,sub,c])=>`<div class="stat-card"><div class="lbl">${l}</div><div class="val" style="${c?'color:'+c:''}">${v}</div><div class="sub">${sub}</div></div>`).join('');
