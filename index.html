@@ -436,14 +436,18 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
       <div id="inv-loading" class="loading-wrap"><div class="spinner"></div>Caricamento...</div>
       <div id="inv-content" style="display:none">
         <div class="stats-row" id="inv-kpi"></div>
-        <div class="card"><div class="card-header"><h3>Anno per anno</h3></div><div style="padding:4px 16px 8px;overflow-x:auto"><div id="inv-anni"></div></div>
-          <div class="inv-note">Investimento = acquisto (175.000 €, di cui 140.000 col mutuo), lavori e avvio fino a luglio 2023. Gestione = affitti meno le spese correnti, compresi gli interessi del mutuo. La quota capitale delle rate non è un costo: restituisce il mutuo. Saldo cumulato = quanto manca ancora a rientrare, debito con la banca compreso.</div></div>
-        <div class="card"><div class="card-header"><h3>Contributi per persona</h3></div><div style="padding:4px 16px 8px;overflow-x:auto"><div id="inv-soci"></div></div>
-          <div class="inv-note">“Pagato” = spese pagate di tasca propria (acquisto e lavori, gestione, rate del mutuo). I prestiti non sono capitale: vanno restituiti, quindi si sottraggono. Quota = capitale netto sul totale dei soci.</div></div>
+        <div class="card"><div class="card-header"><h3>Quanto è costata la struttura</h3><span style="font-size:11px;color:var(--muted)">clicca una voce per vedere le singole spese</span></div>
+          <div style="padding:0 16px 8px"><div id="inv-voci"></div></div></div>
+        <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:20px 0 8px">Chi ha messo i soldi e dove sono andati</div>
+        <div id="inv-persone"></div>
+        <div class="card" style="margin-top:4px"><div class="card-header"><h3>Bonus fiscali</h3></div><div style="padding:4px 16px 8px;overflow-x:auto"><div id="inv-bonus"></div></div>
+          <div class="inv-note">Il credito del bonus è stato ceduto e incassato sul conto AllATTiCO, a rate, dopo ogni stato di avanzamento lavori (SAL).</div></div>
         <div class="two-col">
-          <div class="card"><div class="card-header"><h3>Prestiti</h3></div><div style="padding:4px 16px 8px"><div id="inv-prestiti"></div></div></div>
-          <div class="card"><div class="card-header"><h3>Movimenti investimento</h3></div><div style="padding:0 16px;max-height:340px;overflow-y:auto"><div id="inv-mov"></div></div></div>
+          <div class="card"><div class="card-header"><h3>Mutuo</h3><span style="font-size:11px;color:var(--muted)">1,67% fisso · 25 anni</span></div><div style="padding:4px 16px 8px"><div id="inv-mutuo"></div></div></div>
+          <div class="card"><div class="card-header"><h3>Prestiti in famiglia</h3></div><div style="padding:4px 16px 8px"><div id="inv-prestiti"></div></div></div>
         </div>
+        <div class="card"><div class="card-header"><h3>Anno per anno</h3></div><div style="padding:4px 16px 8px;overflow-x:auto"><div id="inv-anni"></div></div>
+          <div class="inv-note">“Ancora da recuperare” = quanto è costata la struttura meno i bonus e meno l'utile degli affitti. Comprende anche il mutuo ancora da restituire alla banca.</div></div>
       </div>
     </div>
 
@@ -1201,12 +1205,62 @@ function renderSpese(){
 }
 
 // ── INVESTIMENTO ──────────────────────────────────────────────
-// Dati: sheetsData.investimento (tab "Storico", righe INVESTIMENTO / BONUS / FINANZIAMENTO
+// Dati: sheetsData.investimento (tab "Storico": INVESTIMENTO / BONUS / FINANZIAMENTO / MUTUO
 // + spese di gestione pagate di tasca propria) e sheetsData.entrate/spese per la gestione.
 const NOMI = {"VITO":'Vito',"PASQUALE":'Pasquale',"PAPA'":'Papà',"ZIA ANNA":'Zia Anna',"CONTO":'Conto AllATTiCO',"MUTUO":'Mutuo banca'};
-const NON_SOCI = ['CONTO','MUTUO'];
 function nomeP(k){ return NOMI[k] || (k.charAt(0)+k.slice(1).toLowerCase()); }
 function eur(v,dec=false){ return (v<0?'− ':'')+'€ '+fmt(Math.abs(v),dec); }
+function dIt(d){ return d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4); }
+
+// Voci di spesa dell'investimento (in quest'ordine)
+const VOCI = [
+  'Acquisto immobile',
+  'Notaio, agenzia e spese del rogito',
+  'Lavori Sismabonus 110%',
+  'Lavori Ecobonus 110%',
+  'Lavori bonus 50%',
+  'Tecnici, pratiche e altri lavori',
+  'Arredi e allestimento',
+  "Interessi mutuo prima dell'apertura",
+  "Bollette, tasse e banca prima dell'apertura",
+  'Viaggi e varie',
+];
+function voceInv(x){
+  const t = (x.note+' '+(x.cliente||'')).toLowerCase();
+  if (x.chi==='MUTUO' || /acconto offerta|secondo acconto|acquisto immobile/.test(t)) return VOCI[0];
+  if (/sismabonus/.test(t))  return VOCI[2];
+  if (/ecobonus/.test(t))    return VOCI[3];
+  if (/50percento/.test(t))  return VOCI[4];
+  if (/rata mutuo/.test(t))  return VOCI[7];
+  if (/notai|agenzia|istruttoria|imposta sostitutiva|perizia|catast|di trani|tecnico ape/.test(t)) return VOCI[1];
+  if (/raffaele|scia|genio civile|paesaggist|ponteggio|agibilit|laboratorio|marca da bollo|lavori ristrutturazione|allaccio|muratori/.test(t)) return VOCI[5];
+  if (/bollett|sorgenia|elettricit|\bimu\b|\btari\b|assicura|banco ?posta|bancoposta|\bfee\b|bonico|commisioni|prelievo fondi/.test(t)) return VOCI[8];
+  if (/\bvol[oi]\b|wizz|noleggio|\bbus\b|\batm\b|navetta|\bcena\b|aeroporto|pacco|viaggio|bonifico pasquale/.test(t)) return VOCI[9];
+  return VOCI[6];
+}
+const BONUS_TIPI = [
+  {k:'SISMABONUS', nome:'Sismabonus 110%', voce:VOCI[2], desc:'Lavori antisismici (struttura)'},
+  {k:'ECOBONUS',   nome:'Ecobonus 110%',   voce:VOCI[3], desc:'Efficienza energetica (isolamento, impianti, infissi)'},
+  {k:'50PERCENTO', nome:'Bonus 50%',       voce:VOCI[4], desc:'Ristrutturazione edilizia · non è stato possibile recuperarlo', perso:true},
+];
+
+const invAperte = new Set();
+function toggleInv(k){ invAperte.has(k)?invAperte.delete(k):invAperte.add(k); renderInvestimento(); }
+function righeDettaglio(items, mostraChi){
+  return `<div style="background:var(--bg);border-radius:8px;margin:2px 0 8px;padding:4px 0">` +
+    items.sort((a,b)=>a.data>b.data?1:-1).map(x=>`<div class="fin-row" style="border:none;padding:4px 12px 4px 26px">
+      <span class="ft" style="font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <span style="color:var(--muted)">${dIt(x.data)}</span>&nbsp; ${x.note||'—'}${mostraChi?` <span style="font-size:10px;color:var(--muted)">· ${nomeP(x.chi)}</span>`:''}</span>
+      <span class="fv" style="font-size:12px;white-space:nowrap">€ ${fmt(x.uscite||x.entrate,true)}</span></div>`).join('') + `</div>`;
+}
+function rigaApribile(key, label, val, sub, items, mostraChi, stile=''){
+  const aperta = invAperte.has(key);
+  return `<div class="fin-row" onclick="toggleInv('${key.replace(/'/g,"\\'")}')" style="cursor:pointer;user-select:none;${stile}">
+      <span class="ft" style="display:flex;align-items:center;gap:6px">
+        <span style="display:inline-block;width:10px;font-size:10px;color:var(--muted);transform:rotate(${aperta?90:0}deg);transition:transform .15s">▶</span>
+        ${label}${sub?` <span style="font-size:11px;color:var(--muted)">${sub}</span>`:''}</span>
+      <span class="fv">€ ${fmt(val,true)}</span></div>` + (aperta ? righeDettaglio(items, mostraChi) : '');
+}
 
 function renderInvestimento(){
   if(!sheetsData) return;
@@ -1221,123 +1275,126 @@ function renderInvestimento(){
   const INV = I.filter(x=>x.tipo==='INVESTIMENTO');
   const BON = I.filter(x=>x.tipo==='BONUS');
   const FIN = I.filter(x=>x.tipo==='FINANZIAMENTO');
-  const MUT = I.filter(x=>x.tipo==='MUTUO');            // quote capitale delle rate
+  const MUT = I.filter(x=>x.tipo==='MUTUO');
+  const GPERS = I.filter(x=>x.tipo==='GESTIONE');
+  const totInv = sum(INV,x=>x.uscite);
+  const totBon = sum(BON,x=>x.entrate);
   const mutuoCap = sheetsData.mutuo?.capitale || 0;
   const mutuoRimb = sum(MUT,x=>x.uscite);
   const mutuoResiduo = Math.max(0, mutuoCap - mutuoRimb);
-  const totInv = sum(INV,x=>x.uscite);
-  const totBon = sum(BON,x=>x.entrate);
-  const invNetto = totInv - totBon;
 
-  // Gestione per anno (tutti gli anni: storico + foglio corrente)
+  // Gestione per anno
   const anni = {};
-  const A = y => anni[y] = anni[y] || {inv:0,bon:0,ent:0,spe:0,prel:0,mut:0};
-  MUT.forEach(x=>A(x.data.slice(0,4)).mut+=x.uscite);
+  const A = y => anni[y] = anni[y] || {inv:0,bon:0,ent:0,spe:0};
   INV.forEach(x=>A(x.data.slice(0,4)).inv+=x.uscite);
   BON.forEach(x=>A(x.data.slice(0,4)).bon+=x.entrate);
   (sheetsData.entrate||[]).forEach(x=>A(x.data.slice(0,4)).ent+=x.importo);
   (sheetsData.spese||[]).forEach(x=>A(x.data.slice(0,4)).spe+=x.importo);
-  (sheetsData.prelievi||[]).forEach(x=>A(x.data.slice(0,4)).prel+=x.importo);
   const yrs = Object.keys(anni).sort();
   const utileGest = yrs.reduce((s,y)=>s+anni[y].ent-anni[y].spe,0);
-  const totPrel = yrs.reduce((s,y)=>s+anni[y].prel,0);
-  const daRecuperare = invNetto - utileGest;
-  const pctRec = invNetto>0 ? Math.min(100,Math.max(0,Math.round((totBon+utileGest)/totInv*100))) : 0;
+  const daRecuperare = Math.max(0, totInv - totBon - utileGest);
 
+  // ── 1. KPI
   document.getElementById('inv-kpi').innerHTML = [
-    ['Capitale investito', eur(totInv), 'acquisto 175.000 €, lavori, avvio', ''],
-    ['Bonus recuperati', eur(totBon), 'sismabonus, ecobonus, 50%', 'var(--green)'],
-    ['Utile di gestione', eur(utileGest), 'cumulato '+yrs.find(y=>anni[y].ent>0)+'–oggi', utileGest>=0?'var(--green)':'var(--red)'],
-    ['Ancora da recuperare', eur(Math.max(0,daRecuperare)), mutuoCap ? 'di cui '+eur(mutuoResiduo)+' debito mutuo' : pctRec+'% già rientrato', 'var(--orange)'],
+    ['Costo totale della struttura', eur(totInv), 'acquisto, lavori e allestimento', ''],
+    ['Bonus incassati', eur(totBon), Math.round(totBon/totInv*100)+'% del costo', 'var(--green)'],
+    ['Rientrato con gli affitti', eur(utileGest), 'utile di gestione dal '+(yrs.find(y=>anni[y].ent>0)||''), utileGest>=0?'var(--green)':'var(--red)'],
+    ['Ancora da recuperare', eur(daRecuperare), mutuoCap?'di cui '+eur(mutuoResiduo)+' è il mutuo da finire':'', 'var(--orange)'],
   ].map(([l,v,sub,c])=>`<div class="stat-card"><div class="lbl">${l}</div><div class="val" style="${c?'color:'+c:''}">${v}</div><div class="sub">${sub}</div></div>`).join('');
 
-  // Tabella anno per anno
-  let cumul = 0;
-  const righeAnni = yrs.map(y=>{
-    const a=anni[y], g=a.ent-a.spe;
-    cumul += -a.inv + a.bon + g;
-    return `<tr><td>${y}</td><td>${a.inv?eur(-a.inv):'—'}</td><td>${a.bon?eur(a.bon):'—'}</td>
-      <td style="color:${g<0?'var(--red)':g>0?'var(--green)':''}">${(a.ent||a.spe)?eur(g):'—'}</td>
-      <td>${a.mut?eur(-a.mut):'—'}</td>
-      <td>${a.prel?eur(-a.prel):'—'}</td>
-      <td style="font-weight:500;color:${cumul<0?'var(--red)':'var(--green)'}">${eur(cumul)}</td></tr>`;
-  }).join('');
-  document.getElementById('inv-anni').innerHTML = `<table class="inv-table">
-    <tr><th>Anno</th><th>Investito</th><th>Bonus</th><th>Gestione netta</th><th>Capitale mutuo rimborsato</th><th>Prelievi soci</th><th>Saldo cumulato</th></tr>
-    ${righeAnni}
-    <tr class="tot"><td>Totale</td><td>${eur(-totInv)}</td><td>${eur(totBon)}</td><td>${eur(utileGest)}</td><td>${mutuoRimb?eur(-mutuoRimb):'—'}</td><td>${totPrel?eur(-totPrel):'—'}</td><td style="color:${cumul<0?'var(--red)':'var(--green)'}">${eur(cumul)}</td></tr>
-  </table>`;
+  // ── 2. Quanto è costata: per voce
+  const perVoce = {}; INV.forEach(x=>{ (perVoce[voceInv(x)] = perVoce[voceInv(x)]||[]).push(x); });
+  document.getElementById('inv-voci').innerHTML = VOCI.filter(v=>perVoce[v]).map(v=>{
+    const items = perVoce[v], tot = sum(items,x=>x.uscite);
+    const chi = {}; items.forEach(x=>chi[x.chi]=(chi[x.chi]||0)+x.uscite);
+    const sub = Object.entries(chi).sort((a,b)=>b[1]-a[1]).map(([k,val])=>nomeP(k)+' '+fmt(val)).join(' · ');
+    return rigaApribile('v|'+v, v, tot, '', items, true) .replace('</span>\n      <span class="fv">', `<span style="display:block;font-size:11px;color:var(--muted);font-weight:400;margin-left:16px">${sub}</span></span>\n      <span class="fv">`);
+  }).join('') + `<div class="fin-row" style="border-top:2px solid var(--border);border-bottom:none;margin-top:4px;padding-top:10px">
+      <span style="font-weight:600">Totale</span><span class="fv" style="font-weight:600;font-size:15px">€ ${fmt(totInv,true)}</span></div>`;
 
-  // Prestiti: CAPITALI > 0 con "prestito" nella nota = prestito ricevuto.
-  // Restituzioni: CAPITALI < 0, oppure uscite FINANZIAMENTO con "restitu" + nome nella nota.
+  // ── 3. Chi ha messo i soldi
+  const persone = {};
+  const P = k => persone[k] = persone[k] || {voci:{}, mutuo:[], gest:[]};
+  INV.forEach(x=>{ const v=voceInv(x); (P(x.chi).voci[v] = P(x.chi).voci[v]||[]).push(x); });
+  MUT.forEach(x=>P(x.chi).mutuo.push(x));
+  GPERS.forEach(x=>P(x.chi).gest.push(x));
+  // prestiti in famiglia
   const prest = {};
-  const P = k => prest[k] = prest[k] || {dato:0,reso:0,date:[]};
-  FIN.forEach(x=>{ if(x.capitali>0 && /prestito/i.test(x.note)) P(x.chi).dato += x.capitali; });
+  FIN.forEach(x=>{ if(x.capitali>0 && /prestito/i.test(x.note)) (prest[x.chi]=prest[x.chi]||{dato:0,reso:0,date:[]}).dato += x.capitali; });
   FIN.forEach(x=>{
-    if(x.capitali<0){ P(x.chi).reso += -x.capitali; P(x.chi).date.push(x.data); return; }
     if(x.uscite>0 && /restitu/i.test(x.note)){
       const n = x.note.toUpperCase().replace(/[^A-Z]/g,'');
       const k = Object.keys(prest).find(k=>n.includes(k.split(' ')[0].replace(/[^A-Z]/g,'')));
       if(k){ prest[k].reso += x.uscite; prest[k].date.push(x.data); }
     }
   });
+  const ordine = Object.keys(persone).map(k=>{
+    const p = persone[k];
+    const tot = Object.values(p.voci).reduce((s,a)=>s+sum(a,x=>x.uscite),0) + sum(p.mutuo,x=>x.uscite) + sum(p.gest,x=>x.uscite);
+    return {k, p, tot};
+  }).sort((a,b)=>{
+    const rank = k => k==='CONTO'?2:k==='MUTUO'?3:0;
+    return rank(a.k)-rank(b.k) || b.tot-a.tot;
+  });
+  document.getElementById('inv-persone').innerHTML = ordine.map(({k,p,tot})=>{
+    const titolo = k==='CONTO' ? 'Conto AllATTiCO' : k==='MUTUO' ? 'Mutuo banca' : nomeP(k);
+    const spiega = k==='CONTO' ? 'soldi entrati sul conto della struttura: bonus, prestiti e affitti'
+                 : k==='MUTUO' ? 'pagati dalla banca al rogito, da restituire con le rate'
+                 : prest[k] ? (prest[k].dato - prest[k].reso < 1
+                     ? `di cui € ${fmt(prest[k].dato)} prestati e già restituiti`
+                     : `di cui € ${fmt(prest[k].dato)} prestati, da restituire`) : '';
+    let righe = VOCI.filter(v=>p.voci[v]).map(v=>rigaApribile('p|'+k+'|'+v, v, sum(p.voci[v],x=>x.uscite), '', p.voci[v], false, 'padding-left:4px'));
+    if(p.mutuo.length) righe.push(rigaApribile('p|'+k+'|mutuo', 'Rate del mutuo (quota capitale)', sum(p.mutuo,x=>x.uscite), `(${p.mutuo.length} rate)`, p.mutuo, false, 'padding-left:4px'));
+    if(p.gest.length) righe.push(rigaApribile('p|'+k+'|gest', 'Spese di gestione pagate di tasca propria', sum(p.gest,x=>x.uscite), '', p.gest, false, 'padding-left:4px'));
+    return `<div class="card" style="margin-bottom:12px"><div class="card-header">
+        <h3>${titolo}${spiega?` <span style="font-weight:400;font-size:11px;color:var(--muted)">· ${spiega}</span>`:''}</h3>
+        <span style="font-weight:600;font-size:15px">€ ${fmt(tot,true)}</span></div>
+      <div style="padding:0 16px">${righe.join('')}</div></div>`;
+  }).join('');
 
-  // Contributi per persona
-  const soci = {};
-  const S = k => soci[k] = soci[k] || {inv:0,gest:0,mut:0};
-  INV.forEach(x=>{ if(!NON_SOCI.includes(x.chi)) S(x.chi).inv += x.uscite; });
-  I.filter(x=>x.tipo==='GESTIONE').forEach(x=>S(x.chi).gest += x.uscite);
-  MUT.forEach(x=>{ if(!NON_SOCI.includes(x.chi)) S(x.chi).mut += x.uscite; });
-  const righe = Object.keys(soci).map(k=>{
-    const pag = soci[k].inv + soci[k].gest + soci[k].mut;
-    const pr = prest[k]?.dato || 0;
-    return {k, inv:soci[k].inv, gest:soci[k].gest, mut:soci[k].mut, pag, pr, cap:(pag-pr<=1?0:pag-pr)};
-  }).sort((a,b)=>b.cap-a.cap);
-  const totCap = righe.reduce((s,r)=>s+r.cap,0)||1;
-  const contoInv = sum(INV.filter(x=>x.chi==='CONTO'),x=>x.uscite);
-  document.getElementById('inv-soci').innerHTML = `<table class="inv-table">
-    <tr><th>Persona</th><th>Acquisto e lavori</th><th>Gestione</th><th>Rate mutuo (capitale)</th><th>Totale pagato</th><th>di cui prestito</th><th>Capitale netto</th><th>Quota</th></tr>
-    ${righe.map(r=>`<tr><td>${nomeP(r.k)}</td><td>${eur(r.inv)}</td><td>${r.gest?eur(r.gest):'—'}</td><td>${r.mut?eur(r.mut):'—'}</td><td>${eur(r.pag)}</td>
-      <td>${r.pr?eur(-r.pr):'—'}</td><td style="font-weight:600">${eur(r.cap)}</td><td>${r.cap>0?Math.round(r.cap/totCap*100)+'%':'—'}</td></tr>`).join('')}
-    <tr><td style="color:var(--muted)">Conto AllATTiCO</td><td style="color:var(--muted)">${eur(contoInv)}</td><td></td><td style="color:var(--muted)">${eur(sum(MUT.filter(x=>x.chi==='CONTO'),x=>x.uscite))}</td><td></td><td></td><td></td><td style="color:var(--muted);font-size:11px">da affitti, bonus, prestiti</td></tr>
-    ${mutuoCap?`<tr><td style="color:var(--muted)">Mutuo banca</td><td style="color:var(--muted)">${eur(sum(INV.filter(x=>x.chi==='MUTUO'),x=>x.uscite))}</td><td></td><td></td><td></td><td></td><td></td><td style="color:var(--muted);font-size:11px">da restituire alla banca</td></tr>`:''}
-    <tr class="tot"><td>Totale soci</td><td></td><td></td><td></td><td>${eur(righe.reduce((s,r)=>s+r.pag,0))}</td><td>${eur(-righe.reduce((s,r)=>s+r.pr,0))}</td><td>${eur(totCap)}</td><td>100%</td></tr>
-  </table>`;
+  // ── 4. Bonus
+  document.getElementById('inv-bonus').innerHTML = `<table class="inv-table">
+    <tr><th>Bonus</th><th>Costo dei lavori</th><th>Incassato</th><th>Recuperato</th></tr>` +
+    BONUS_TIPI.map(b=>{
+      const spese = sum(perVoce[b.voce]||[],x=>x.uscite);
+      const inc = BON.filter(x=>(x.cliente||'').toUpperCase()===b.k);
+      const tInc = sum(inc,x=>x.entrate);
+      const pct = spese ? Math.round(tInc/spese*100) : 0;
+      return `<tr><td><strong>${b.nome}</strong><div style="font-size:11px;color:var(--muted);white-space:normal">${b.desc}</div></td>
+        <td>${eur(spese)}</td><td style="color:${tInc?'var(--green)':'var(--muted)'}">${tInc?eur(tInc):(b.perso?'non recuperato':'nessun incasso')}</td>
+        <td><span class="pill ${pct>=95?'ok':'open'}" ${b.perso?'style="background:var(--red-light);color:var(--red)"':''}>${pct}%</span></td></tr>
+        ${inc.map(x=>`<tr><td style="padding-left:18px;color:var(--muted);font-size:12px;white-space:normal">${dIt(x.data)} · ${x.note}</td><td></td><td style="font-size:12px;color:var(--green)">${eur(x.entrate,true)}</td><td></td></tr>`).join('')}`;
+    }).join('') + `<tr class="tot"><td>Totale</td><td>${eur(BONUS_TIPI.reduce((s,b)=>s+sum(perVoce[b.voce]||[],x=>x.uscite),0))}</td><td style="color:var(--green)">${eur(totBon)}</td><td></td></tr></table>`;
 
-  document.getElementById('inv-prestiti').innerHTML = Object.entries(prest).filter(([k,p])=>p.dato>0).map(([k,p])=>{
-    const resid = Math.max(0, p.dato - p.reso);
-    const chiuso = resid < 1;
+  // ── 5. Mutuo e prestiti
+  const nRate = Math.max(0,...MUT.map(x=>parseInt((x.note.match(/n\.(\d+)/)||[])[1]||0)));
+  const pct = mutuoCap ? Math.round(mutuoRimb/mutuoCap*100) : 0;
+  const mutChi = {}; MUT.forEach(x=>mutChi[x.chi]=(mutChi[x.chi]||0)+x.uscite);
+  document.getElementById('inv-mutuo').innerHTML = mutuoCap ? `
+    <div class="fin-row"><span class="ft">Importo del mutuo</span><span class="fv">€ ${fmt(mutuoCap)}</span></div>
+    <div class="fin-row"><span class="ft">Rate pagate</span><span class="fv">${nRate} di ${sheetsData.mutuo.rate}</span></div>
+    <div class="fin-row"><span class="ft">Capitale già restituito <span style="font-size:11px;color:var(--muted)">(${Object.entries(mutChi).sort((a,b)=>b[1]-a[1]).map(([k,v])=>nomeP(k)+' '+fmt(v)).join(' · ')})</span></span><span class="fv pos">€ ${fmt(mutuoRimb,true)}</span></div>
+    <div style="height:6px;background:var(--border);border-radius:3px;margin:10px 0 4px"><div style="width:${pct}%;height:100%;background:#0891B2;border-radius:3px"></div></div>
+    <div class="fin-row" style="border:none"><span style="font-weight:600">Debito residuo</span><span class="fv" style="color:var(--orange);font-weight:600">€ ${fmt(mutuoResiduo,true)}</span></div>` : '';
+  document.getElementById('inv-prestiti').innerHTML = Object.entries(prest).map(([k,p])=>{
+    const resid = Math.max(0, p.dato - p.reso), chiuso = resid < 1;
     return `<div class="fin-row" style="flex-wrap:wrap;gap:4px">
       <span class="ft"><strong>${nomeP(k)}</strong> &nbsp;<span class="pill ${chiuso?'ok':'open'}">${chiuso?'Restituito':'Da restituire'}</span></span>
-      <span class="fv">${eur(p.dato)}</span>
+      <span class="fv">€ ${fmt(p.dato)}</span>
       <span style="width:100%;font-size:11px;color:var(--muted)">${chiuso
-        ? 'Restituito '+eur(p.reso,true)+(p.date.length?' · '+p.date.map(d=>d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4)).join(', '):'')
-        : (p.reso? 'Restituito '+eur(p.reso)+' · ' : '')+'Residuo <b style="color:var(--orange)">'+eur(resid)+'</b>'}</span>
-    </div>`;
-  }).join('') + (mutuoCap ? (()=>{
-    const nRate = Math.max(0,...MUT.map(x=>parseInt((x.note.match(/n\.(\d+)/)||[])[1]||0)));
-    const tot = sheetsData.mutuo.rate;
-    const pct = Math.round(mutuoRimb/mutuoCap*100);
-    return `<div class="fin-row" style="flex-wrap:wrap;gap:4px">
-      <span class="ft"><strong>Mutuo banca</strong> &nbsp;<span class="pill open">In corso</span></span>
-      <span class="fv">${eur(mutuoCap)}</span>
-      <span style="width:100%;font-size:11px;color:var(--muted)">Rata ${nRate} di ${tot} · capitale rimborsato ${eur(mutuoRimb)} (${pct}%) · debito residuo <b style="color:var(--orange)">${eur(mutuoResiduo)}</b></span>
-      <div style="width:100%;height:5px;background:var(--border);border-radius:3px;margin-top:2px"><div style="width:${pct}%;height:100%;background:#0891B2;border-radius:3px"></div></div>
-    </div>`; })() : '')
-    || '<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun prestito</div>';
+        ? 'Restituito il '+p.date.map(dIt).join(' e il ')
+        : 'Ancora da restituire <b style="color:var(--orange)">€ '+fmt(resid)+'</b>'}</span></div>`;
+  }).join('') || '<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun prestito</div>';
 
-  // Movimenti (investimento, bonus, restituzioni)
-  const mov = I.filter(x=>x.tipo!=='GESTIONE' && x.tipo!=='MUTUO' && (x.uscite||x.entrate))
-    .sort((a,b)=>b.data>a.data?1:-1);
-  document.getElementById('inv-mov').innerHTML = mov.map(m=>{
-    const v = m.entrate ? m.entrate : -m.uscite;
-    const tag = m.tipo==='BONUS'?'Bonus':m.tipo==='FINANZIAMENTO'?'Prestito':nomeP(m.chi);
-    return `<div class="fin-row">
-      <span class="ft" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        <span style="color:var(--muted)">${m.data.slice(8,10)}/${m.data.slice(5,7)}/${m.data.slice(2,4)}</span>
-        &nbsp;${m.note||'—'} <span style="font-size:10px;color:var(--muted)"> · ${tag}</span></span>
-      <span class="fv ${v>=0?'pos':'neg'}" style="white-space:nowrap">${v>=0?'+':'−'} € ${fmt(Math.abs(v),true)}</span></div>`;
-  }).join('');
+  // ── 6. Anno per anno
+  let cumul = 0;
+  document.getElementById('inv-anni').innerHTML = `<table class="inv-table">
+    <tr><th>Anno</th><th>Speso per la struttura</th><th>Bonus incassati</th><th>Utile degli affitti</th><th>Ancora da recuperare</th></tr>
+    ${yrs.map(y=>{ const a=anni[y], g=a.ent-a.spe; cumul += a.inv - a.bon - g;
+      return `<tr><td>${y}</td><td>${a.inv?eur(a.inv):'—'}</td><td style="color:var(--green)">${a.bon?eur(a.bon):'—'}</td>
+        <td style="color:${g<0?'var(--red)':g>0?'var(--green)':''}">${(a.ent||a.spe)?eur(g):'—'}</td>
+        <td style="font-weight:500;color:var(--orange)">${eur(Math.max(0,cumul))}</td></tr>`; }).join('')}
+  </table>`;
 }
 
 // ── MODAL ─────────────────────────────────────────────────────
