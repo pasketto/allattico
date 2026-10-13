@@ -1066,7 +1066,19 @@ function renderSpese(){
     <div class="fin-row"><span class="ft"><strong>Entrate nette</strong></span><span class="fv pos"><strong>+ € ${fmt(totNette,true)}</strong></span></div>
     <div class="fin-row"><span class="ft" style="padding-left:12px">· Transazioni carta Booking</span><span class="fv neg">− € ${fmt(totTrans,true)}</span></div>
     <div class="fin-row"><span class="ft" style="padding-left:12px">· Altre spese</span><span class="fv neg">− € ${fmt(totAltreS,true)}</span></div>
-    <div class="fin-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:10px"><span style="font-weight:600">Netto finale</span><span class="fv ${totNetto>=0?'pos':'neg'}" style="font-size:15px">${totNetto>=0?'+':'−'} € ${fmt(Math.abs(totNetto),true)}</span></div>`;
+    <div class="fin-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:10px"><span style="font-weight:600">Netto finale</span><span class="fv ${totNetto>=0?'pos':'neg'}" style="font-size:15px">${totNetto>=0?'+':'−'} € ${fmt(Math.abs(totNetto),true)}</span></div>`
+    + (()=>{
+      // Prelievi soci: utile distribuito, mostrato sotto il netto (non è un costo)
+      const P = filterPeriod(sheetsData.prelievi||[], from, to);
+      if(!P.length) return '';
+      const totP = P.reduce((a,x)=>a+x.importo,0);
+      const perSocio = {};
+      P.forEach(x=>{ const n=x.socio.charAt(0)+x.socio.slice(1).toLowerCase(); perSocio[n]=(perSocio[n]||0)+x.importo; });
+      const dett = Object.entries(perSocio).map(([n,v])=>`${n} ${fmt(v,true)}`).join(' · ');
+      const resto = totNetto - totP;
+      return `<div class="fin-row" style="margin-top:6px"><span class="ft">Prelievi soci <span style="font-size:11px">(${dett})</span></span><span class="fv" style="color:#7C3AED">− € ${fmt(totP,true)}</span></div>
+      <div class="fin-row"><span style="font-weight:600">Utile non distribuito</span><span class="fv ${resto>=0?'pos':'neg'}">${resto>=0?'+':'−'} € ${fmt(Math.abs(resto),true)}</span></div>`;
+    })();
   // Per appartamento (da Smoobu amount)
   const aptE={0:0,1:0,2:0,3:0};
   smoobuData.filter(b=>!b.isBlock&&b.checkin>=from&&b.checkin<=to).forEach(b=>{if(aptE[b.apt]!==undefined)aptE[b.apt]+=b.amount;});
@@ -1107,7 +1119,7 @@ function renderSpese(){
     }).join('') || '<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessuna spesa</div>';
 
   // ── Movimenti: mostra la descrizione, non solo la categoria ──
-  const mov=[...E.map(e=>({...e,segno:'+',cls:'pos'})),...S.map(s=>({...s,importo:-s.importo,segno:'-',cls:'neg'}))].sort((a,b)=>b.data>a.data?1:-1);
+  const mov=[...E.map(e=>({...e,segno:'+',cls:'pos'})),...S.map(s=>({...s,importo:-s.importo,segno:'-',cls:'neg'})),...filterPeriod(sheetsData.prelievi||[],from,to).map(p=>({...p,tipo:'Prelievo '+p.socio.charAt(0)+p.socio.slice(1).toLowerCase(),importo:-p.importo,segno:'-',cls:'neg'}))].sort((a,b)=>b.data>a.data?1:-1);
   document.getElementById('r-mov').innerHTML = mov.map(m=>{
     const desc = m.note || m.tipo || '—';
     const cat  = m.tipo && m.note ? m.tipo : '';
