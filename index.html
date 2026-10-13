@@ -454,6 +454,9 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
         <div class="stats-row" id="inv-kpi" style="grid-template-columns:repeat(auto-fit,minmax(170px,1fr))"></div>
         <div class="card"><div class="card-header"><h3>Quanto è costata la struttura</h3><span style="font-size:11px;color:var(--muted)">clicca una voce per vedere le singole spese</span></div>
           <div style="padding:0 16px 8px"><div id="inv-voci"></div></div></div>
+        <div class="card" id="inv-avvio-card" style="display:none"><div class="card-header"><h3>Spese sostenute prima dell'apertura</h3><span style="font-size:11px;color:var(--muted)">2021 – luglio 2023, mentre la casa era in ristrutturazione</span></div>
+          <div style="padding:0 16px 8px"><div id="inv-avvio"></div></div>
+          <div class="inv-note">Non sono il costo della casa ma soldi spesi mentre non c'erano ancora affitti (rate del mutuo, bollette, tasse, viaggi). Si sommano a quanto c'è da recuperare.</div></div>
         <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:20px 0 8px">Chi ha messo i soldi e dove sono andati</div>
         <div id="inv-persone"></div>
         <div class="card" style="margin-top:4px"><div class="card-header"><h3>Bonus fiscali</h3></div><div style="padding:4px 16px 8px;overflow-x:auto"><div id="inv-bonus"></div></div>
@@ -463,7 +466,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
           <div class="card"><div class="card-header"><h3>Prestiti in famiglia</h3></div><div style="padding:4px 16px 8px"><div id="inv-prestiti"></div></div></div>
         </div>
         <div class="card"><div class="card-header"><h3>Anno per anno</h3></div><div style="padding:4px 16px 8px;overflow-x:auto"><div id="inv-anni"></div></div>
-          <div class="inv-note">“Ancora da recuperare” = quanto è costata la struttura meno i bonus e meno l'utile degli affitti. Comprende anche il mutuo ancora da restituire alla banca.</div></div>
+          <div class="inv-note">“Netto della gestione” = il netto finale di quell'anno in Entrate &amp; Spese (nel 2021–2022 solo spese, perché la casa non era ancora aperta). “Ancora da recuperare” = costo della struttura − bonus − netti della gestione. Comprende anche il mutuo ancora da restituire alla banca.</div></div>
       </div>
     </div>
 
@@ -548,11 +551,11 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
         <details>
           <summary>6 · Investimento: cosa significano i numeri</summary>
           <table class="g-tab">
-            <tr><td>Costo totale della struttura</td><td>Tutto quello che è stato speso per comprare, ristrutturare e allestire la casa fino all'apertura (luglio 2023): acquisto 175.000 € (35.000 di acconto + 140.000 col mutuo), notaio, lavori, tecnici, arredi, bollette e interessi pagati prima di aprire.</td></tr>
+            <tr><td>Costo totale della struttura</td><td>Quanto è costata la casa: acquisto 175.000 € (35.000 di acconto + 140.000 col mutuo), notaio e agenzia, lavori, tecnici, arredi e finiture.</td></tr>
             <tr><td>Bonus incassati</td><td>Crediti fiscali dei lavori, ceduti e incassati sul conto.</td></tr>
             <tr><td>Costo al netto dei bonus</td><td>Costo totale meno bonus: quanto è costata davvero la struttura.</td></tr>
-            <tr><td>Rientrato con gli affitti</td><td>La somma dei “netti finali” di tutti gli anni di attività.</td></tr>
-            <tr><td>Ancora da recuperare</td><td>Costo al netto dei bonus meno quanto è rientrato con gli affitti. Comprende anche il mutuo ancora da restituire.</td></tr>
+            <tr><td>Rientrato con la gestione</td><td>La somma dei “netti finali” di tutti gli anni, dal 2021. Nel 2021–2022 il netto è negativo perché c'erano solo spese (interessi, bollette, tasse) e nessun affitto.</td></tr>
+            <tr><td>Ancora da recuperare</td><td>Costo al netto dei bonus − quanto è rientrato con la gestione. Comprende anche il mutuo ancora da restituire.</td></tr>
           </table>
           <ul>
             <li><b>Quanto è costata la struttura</b>: le voci di spesa, con chi le ha pagate. Clicca una voce per vedere ogni singola spesa.</li>
@@ -577,8 +580,8 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
           </table>
           <p><b>Solo nel tab Storico</b>: MOTIVO indica <b>chi ha pagato</b> (VITO, PASQUALE, PAPA', ZIA ANNA, AllATTiCO = conto della struttura, MUTUO = banca) e la colonna <b>TIPO</b> separa i movimenti:</p>
           <table class="g-tab">
-            <tr><td>GESTIONE</td><td>Affitti e spese correnti: entrano nel netto.</td></tr>
-            <tr><td>INVESTIMENTO</td><td>Acquisto, lavori e allestimento fino all'apertura (luglio 2023).</td></tr>
+            <tr><td>GESTIONE</td><td>Affitti e spese correnti (anche quelle del 2021–2023, prima dell'apertura: bollette, interessi, tasse, viaggi): entrano nel netto del loro anno.</td></tr>
+            <tr><td>INVESTIMENTO</td><td>Il costo della casa: acquisto, notaio, lavori, tecnici, arredi e finiture.</td></tr>
             <tr><td>BONUS</td><td>Incassi dei crediti fiscali.</td></tr>
             <tr><td>FINANZIAMENTO</td><td>Prestiti ricevuti, loro restituzione e il mutuo.</td></tr>
           </table>
@@ -1362,17 +1365,21 @@ function dIt(d){ return d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4); }
 
 // Voci di spesa dell'investimento (in quest'ordine)
 const VOCI = [
+  // costo della struttura (indici 0–6)
   'Acquisto immobile',
   'Notaio, agenzia e spese del rogito',
   'Lavori Sismabonus 110%',
   'Lavori Ecobonus 110%',
   'Lavori bonus 50%',
   'Tecnici, pratiche e altri lavori',
-  'Arredi e allestimento',
-  "Interessi mutuo prima dell'apertura",
-  "Bollette, tasse e banca prima dell'apertura",
+  'Arredi e finiture',
+  // spese sostenute prima dell'apertura (indici 7–10)
+  'Interessi del mutuo',
+  'Bollette, tasse, assicurazione e banca',
+  'Biancheria e forniture',
   'Viaggi e varie',
 ];
+const VOCI_STRUTTURA = VOCI.slice(0,7), VOCI_AVVIO = VOCI.slice(7);
 function voceInv(x){
   const t = (x.note+' '+(x.cliente||'')).toLowerCase();
   if (x.chi==='MUTUO' || /acconto offerta|secondo acconto|acquisto immobile/.test(t)) return VOCI[0];
@@ -1383,7 +1390,8 @@ function voceInv(x){
   if (/notai|agenzia|istruttoria|imposta sostitutiva|perizia|catast|di trani|tecnico ape/.test(t)) return VOCI[1];
   if (/raffaele|scia|genio civile|paesaggist|ponteggio|agibilit|laboratorio|marca da bollo|lavori ristrutturazione|allaccio|muratori/.test(t)) return VOCI[5];
   if (/bollett|sorgenia|elettricit|\bimu\b|\btari\b|assicura|banco ?posta|bancoposta|\bfee\b|bonico|commisioni|prelievo fondi/.test(t)) return VOCI[8];
-  if (/\bvol[oi]\b|wizz|noleggio|\bbus\b|\batm\b|navetta|\bcena\b|aeroporto|pacco|viaggio|bonifico pasquale/.test(t)) return VOCI[9];
+  if (/lenzuol|asciugaman|marmellat|nutella|cornett/.test(t)) return VOCI[9];
+  if (/\bvol[oi]\b|wizz|noleggio|\bbus\b|\batm\b|navetta|\bcena\b|aeroporto|pacco|viaggio|bonifico pasquale/.test(t)) return VOCI[10];
   return VOCI[6];
 }
 const BONUS_TIPI = [
@@ -1425,7 +1433,9 @@ function renderInvestimento(){
   const FIN = I.filter(x=>x.tipo==='FINANZIAMENTO');
   const MUT = I.filter(x=>x.tipo==='MUTUO');
   const GPERS = I.filter(x=>x.tipo==='GESTIONE');
-  const totInv = sum(INV,x=>x.uscite);
+  const totInv = sum(INV,x=>x.uscite);                                   // tutto lo speso fino all'apertura
+  const totStruttura = sum(INV.filter(x=>VOCI_STRUTTURA.includes(voceInv(x))),x=>x.uscite);
+  const totAvvio = totInv - totStruttura;                                 // spese prima dell'apertura
   const totBon = sum(BON,x=>x.entrate);
   const mutuoCap = sheetsData.mutuo?.capitale || 0;
   const mutuoRimb = sum(MUT,x=>x.uscite);
@@ -1444,22 +1454,27 @@ function renderInvestimento(){
 
   // ── 1. KPI
   document.getElementById('inv-kpi').innerHTML = [
-    ['Costo totale della struttura', eur(totInv), 'acquisto, lavori e allestimento', ''],
-    ['Bonus incassati', eur(totBon), Math.round(totBon/totInv*100)+'% del costo', 'var(--green)'],
-    ['Costo al netto dei bonus', eur(totInv-totBon), 'quanto è costata davvero', ''],
-    ['Rientrato con gli affitti', eur(utileGest), 'utile di gestione dal '+(yrs.find(y=>anni[y].ent>0)||''), utileGest>=0?'var(--green)':'var(--red)'],
+    ['Costo totale della struttura', eur(totStruttura), 'acquisto, lavori, arredi', ''],
+    ['Bonus incassati', eur(totBon), Math.round(totBon/totStruttura*100)+'% del costo', 'var(--green)'],
+    ['Costo al netto dei bonus', eur(totStruttura-totBon), 'quanto è costata davvero', ''],
+    ['Rientrato con la gestione', eur(utileGest), 'somma dei netti di tutti gli anni', utileGest>=0?'var(--green)':'var(--red)'],
     ['Ancora da recuperare', eur(daRecuperare), mutuoCap?'di cui '+eur(mutuoResiduo)+' è il mutuo da finire':'', 'var(--orange)'],
   ].map(([l,v,sub,c])=>`<div class="stat-card"><div class="lbl">${l}</div><div class="val" style="${c?'color:'+c:''}">${v}</div><div class="sub">${sub}</div></div>`).join('');
 
   // ── 2. Quanto è costata: per voce
   const perVoce = {}; INV.forEach(x=>{ (perVoce[voceInv(x)] = perVoce[voceInv(x)]||[]).push(x); });
-  document.getElementById('inv-voci').innerHTML = VOCI.filter(v=>perVoce[v]).map(v=>{
+  const bloccoVoci = (lista) => lista.filter(v=>perVoce[v]).map(v=>{
     const items = perVoce[v], tot = sum(items,x=>x.uscite);
     const chi = {}; items.forEach(x=>chi[x.chi]=(chi[x.chi]||0)+x.uscite);
     const sub = Object.entries(chi).sort((a,b)=>b[1]-a[1]).map(([k,val])=>nomeP(k)+' '+fmt(val)).join(' · ');
     return rigaApribile('v|'+v, v, tot, '', items, true) .replace('</span>\n      <span class="fv">', `<span style="display:block;font-size:11px;color:var(--muted);font-weight:400;margin-left:16px">${sub}</span></span>\n      <span class="fv">`);
-  }).join('') + `<div class="fin-row" style="border-top:2px solid var(--border);border-bottom:none;margin-top:4px;padding-top:10px">
-      <span style="font-weight:600">Totale</span><span class="fv" style="font-weight:600;font-size:15px">€ ${fmt(totInv,true)}</span></div>`;
+  }).join('');
+  const rigaTot = (lbl,v) => `<div class="fin-row" style="border-top:2px solid var(--border);border-bottom:none;margin-top:4px;padding-top:10px">
+      <span style="font-weight:600">${lbl}</span><span class="fv" style="font-weight:600;font-size:15px">€ ${fmt(v,true)}</span></div>`;
+  document.getElementById('inv-voci').innerHTML = bloccoVoci(VOCI_STRUTTURA) + rigaTot('Totale', totStruttura);
+  // eventuali spese correnti rimaste tra gli investimenti (normalmente nessuna: sono in Entrate & Spese)
+  document.getElementById('inv-avvio-card').style.display = totAvvio > 0.5 ? '' : 'none';
+  document.getElementById('inv-avvio').innerHTML = bloccoVoci(VOCI_AVVIO) + rigaTot('Totale', totAvvio);
 
   // ── 3. Chi ha messo i soldi
   const persone = {};
@@ -1538,7 +1553,7 @@ function renderInvestimento(){
   // ── 6. Anno per anno
   let cumul = 0;
   document.getElementById('inv-anni').innerHTML = `<table class="inv-table">
-    <tr><th>Anno</th><th>Speso per la struttura</th><th>Bonus incassati</th><th>Utile degli affitti</th><th>Ancora da recuperare</th></tr>
+    <tr><th>Anno</th><th>Speso per la struttura</th><th>Bonus incassati</th><th>Netto della gestione</th><th>Ancora da recuperare</th></tr>
     ${yrs.map(y=>{ const a=anni[y], g=a.ent-a.spe; cumul += a.inv - a.bon - g;
       return `<tr><td>${y}</td><td>${a.inv?eur(a.inv):'—'}</td><td style="color:var(--green)">${a.bon?eur(a.bon):'—'}</td>
         <td style="color:${g<0?'var(--red)':g>0?'var(--green)':''}">${(a.ent||a.spe)?eur(g):'—'}</td>
