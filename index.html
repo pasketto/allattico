@@ -208,6 +208,16 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .tab-row { display: flex; gap: 3px; background: var(--bg); padding: 3px; border-radius: 7px; border: 1px solid var(--border); }
 .tab-btn { padding: 5px 12px; border-radius: 5px; border: none; background: transparent; font-size: 12px; cursor: pointer; color: var(--muted); font-family: 'Inter',sans-serif; transition: all .12s; }
 .tab-btn.active { background: var(--white); color: var(--text); font-weight: 500; box-shadow: var(--shadow); }
+.anno-sel { font-size: 13px; font-weight: 600; padding: 6px 10px; }
+.inv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.inv-table th { text-align: right; font-size: 11px; font-weight: 600; color: var(--muted); padding: 8px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.inv-table th:first-child, .inv-table td:first-child { text-align: left; }
+.inv-table td { text-align: right; padding: 9px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.inv-table tr.tot td { font-weight: 600; border-top: 2px solid var(--border); border-bottom: none; }
+.inv-note { font-size: 11px; color: var(--muted); padding: 10px 16px 14px; line-height: 1.5; }
+.pill { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+.pill.ok { background: var(--green-light); color: var(--green); }
+.pill.open { background: var(--orange-light); color: var(--orange); }
 .periodo-sel { padding: 5px 10px; border: 1px solid var(--border); border-radius: 7px; font-family: 'Inter',sans-serif; font-size: 12px; background: var(--white); color: var(--text); }
 
 /* MODAL */
@@ -244,6 +254,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
     <button class="nav-item" onclick="showPage('messaggi',this)"><span class="icon">💬</span>Messaggi</button>
     <button class="nav-item" onclick="showPage('statistiche',this)"><span class="icon">📊</span>Statistiche</button>
     <button class="nav-item" onclick="showPage('spese',this)"><span class="icon">💶</span>Entrate & Spese</button>
+    <button class="nav-item" onclick="showPage('investimento',this)"><span class="icon">🏗️</span>Investimento</button>
   </nav>
   <div class="sidebar-bottom">
     <h4>Portali</h4>
@@ -258,6 +269,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
     <div class="search-box">🔍 <span>Ospite o prenotazione...</span></div>
     <button class="btn-top" onclick="openModal('block')">🔒 Blocca date</button>
     <button class="btn-top primary" onclick="openModal('booking')">+ Prenotazione</button>
+    <select class="periodo-sel anno-sel" id="anno-sel" onchange="setAnno(this.value)" title="Anno visualizzato"><option>2026</option></select>
     <div class="sync-pill" onclick="loadAll()" title="Clicca per aggiornare">
       <div class="sync-dot" id="sync-dot"></div>
       <span id="sync-label">Connessione...</span>
@@ -269,9 +281,9 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
     <!-- HOME -->
     <div id="page-home" class="page active">
       <div class="stats-row">
-        <div class="stat-card"><div class="lbl">Entrate 2026</div><div class="val" id="s-entrate">—</div><div class="sub">da Google Sheets</div></div>
-        <div class="stat-card"><div class="lbl">Spese 2026</div><div class="val" id="s-spese">—</div><div class="sub">da Google Sheets</div></div>
-        <div class="stat-card"><div class="lbl">Netto 2026</div><div class="val" id="s-netto">—</div><div class="sub">entrate − spese</div></div>
+        <div class="stat-card"><div class="lbl">Entrate <span class="anno-lbl">2026</span></div><div class="val" id="s-entrate">—</div><div class="sub">da Google Sheets</div></div>
+        <div class="stat-card"><div class="lbl">Spese <span class="anno-lbl">2026</span></div><div class="val" id="s-spese">—</div><div class="sub">da Google Sheets</div></div>
+        <div class="stat-card"><div class="lbl">Netto <span class="anno-lbl">2026</span></div><div class="val" id="s-netto">—</div><div class="sub">entrate − spese</div></div>
         <div class="stat-card"><div class="lbl">Prenotazioni attive</div><div class="val" id="s-prenot">—</div><div class="sub">da Smoobu</div></div>
       </div>
       <div class="two-col">
@@ -363,6 +375,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
           <div class="stat-card"><div class="lbl">Netto finale ricevuto</div><div class="val" id="k-netto" style="color:var(--green)">—</div><div class="sub">nette − spese</div></div>
         </div>
         <!-- Riga 2: Stimato (da Smoobu) -->
+        <div id="smoobu-kpi">
         <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;margin-top:6px">📅 Stimato · da Smoobu (include prenotazioni future)</div>
         <div class="stats-row" style="margin-bottom:16px">
           <div class="stat-card"><div class="lbl">Entrate lorde stimate</div><div class="val" id="k-stimate">—</div><div class="sub">tutte le prenotazioni</div></div>
@@ -370,6 +383,8 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
           <div class="stat-card"><div class="lbl">Prenotazioni periodo</div><div class="val" id="k-prenot">—</div><div class="sub">da Smoobu</div></div>
           <div class="stat-card"><div class="lbl">Media per prenotazione</div><div class="val" id="k-media">—</div><div class="sub">valore medio</div></div>
         </div>
+        </div>
+        <div style="height:10px"></div>
         <div class="two-col">
           <div class="card"><div class="card-header"><h3 id="chart-title">Entrate mensili</h3></div><div style="padding:14px 16px"><div class="month-bars" id="month-bars"></div></div></div>
           <div class="card"><div class="card-header"><h3>Lorde vs Nette vs Costi</h3></div><div style="padding:14px 16px"><div id="lordo-netto-bars"></div></div></div>
@@ -412,6 +427,22 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
         <div class="two-col">
           <div class="card"><div class="card-header"><h3>Spese per categoria</h3></div><div style="padding:0 16px"><div id="r-cats"></div></div></div>
           <div class="card"><div class="card-header"><h3>Movimenti del periodo</h3></div><div style="padding:0 16px;max-height:320px;overflow-y:auto"><div id="r-mov"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVESTIMENTO -->
+    <div id="page-investimento" class="page">
+      <div id="inv-loading" class="loading-wrap"><div class="spinner"></div>Caricamento...</div>
+      <div id="inv-content" style="display:none">
+        <div class="stats-row" id="inv-kpi"></div>
+        <div class="card"><div class="card-header"><h3>Anno per anno</h3></div><div style="padding:4px 16px 8px;overflow-x:auto"><div id="inv-anni"></div></div>
+          <div class="inv-note">Investimento = acquisto, lavori e avvio fino a luglio 2023. Gestione = affitti meno tutte le spese correnti (mutuo incluso), al lordo dei prelievi dei soci.</div></div>
+        <div class="card"><div class="card-header"><h3>Contributi per persona</h3></div><div style="padding:4px 16px 8px;overflow-x:auto"><div id="inv-soci"></div></div>
+          <div class="inv-note">“Pagato” = spese pagate di tasca propria (lavori + gestione). I prestiti non sono capitale: vanno restituiti, quindi si sottraggono. Quota = capitale netto sul totale dei soci.</div></div>
+        <div class="two-col">
+          <div class="card"><div class="card-header"><h3>Prestiti</h3></div><div style="padding:4px 16px 8px"><div id="inv-prestiti"></div></div></div>
+          <div class="card"><div class="card-header"><h3>Movimenti investimento</h3></div><div style="padding:0 16px;max-height:340px;overflow-y:auto"><div id="inv-mov"></div></div></div>
         </div>
       </div>
     </div>
@@ -531,14 +562,15 @@ const APTS = [
 
 const MONTHS = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 const MS = ['G','F','M','A','M','G','L','A','S','O','N','D'];
-const PAGE_TITLES = {home:'Homepage',calendario:'Calendario',prenotazioni:'Prenotazioni',messaggi:'Messaggi',statistiche:'Statistiche',spese:'Entrate & Spese'};
+const PAGE_TITLES = {home:'Homepage',calendario:'Calendario',prenotazioni:'Prenotazioni',messaggi:'Messaggi',statistiche:'Statistiche',spese:'Entrate & Spese',investimento:'Investimento'};
 
 let smoobuData = [];     // prenotazioni da Smoobu
 let sheetsData = null;   // entrate/spese da Google Sheets
 let manualBookings = []; // prenotazioni dirette aggiunte dall'utente
 let blocks = [];         // blocchi manuali
 let nextId = 9000;
-let curYear = 2026, curMonth = new Date().getMonth();
+let curYear = new Date().getFullYear(), curMonth = new Date().getMonth();
+let annoSel = new Date().getFullYear();   // anno scelto nel selettore in alto
 let periodoMode = 'anno', periodoModeSpese = 'anno';
 let currentFilter = 'tutte';
 
@@ -599,6 +631,7 @@ async function loadAll() {
 
     // Dati Google Sheets (entrate/spese)
     sheetsData = data;
+    popolaAnni();
 
     updateStats();
     renderHome();
@@ -606,6 +639,7 @@ async function loadAll() {
     renderBookings(currentFilter);
     renderStats();
     renderSpese();
+    renderInvestimento();
 
   } catch(err) {
     console.error('Load error:', err);
@@ -678,11 +712,16 @@ function allBookings() {
 
 // ── STATS ─────────────────────────────────────────────────────
 function updateStats() {
-  const totE = sheetsData?.entrate?.reduce((s,e)=>s+e.importo,0)||0;
-  const totS = sheetsData?.spese?.reduce((s,e)=>s+e.importo,0)||0;
+  const y = String(annoSel);
+  const totE = (sheetsData?.entrate||[]).filter(e=>e.data.startsWith(y)).reduce((s,e)=>s+e.importo,0);
+  const totS = (sheetsData?.spese||[]).filter(e=>e.data.startsWith(y)).reduce((s,e)=>s+e.importo,0);
+  const net = totE-totS;
+  document.querySelectorAll('.anno-lbl').forEach(el=>el.textContent=annoSel);
   document.getElementById('s-entrate').textContent = '€ '+fmt(totE);
   document.getElementById('s-spese').textContent   = '€ '+fmt(totS);
-  document.getElementById('s-netto').textContent   = '€ '+fmt(totE-totS);
+  const elN = document.getElementById('s-netto');
+  elN.textContent = (net<0?'− ':'')+'€ '+fmt(Math.abs(net));
+  elN.style.color = net<0 ? 'var(--red)' : '';
   document.getElementById('s-prenot').textContent  = smoobuData.filter(b=>!b.isBlock).length;
 }
 
@@ -881,8 +920,22 @@ function saveMsg(id,f,v){const m=messages.find(x=>x.id===id);if(m)m[f]=v;const e
 function toggleMsg(id,btn){const m=messages.find(x=>x.id===id);if(!m)return;m.active=!m.active;btn.classList.toggle('on');btn.nextElementSibling.textContent=m.active?'Attivo':'Non attivo';}
 
 // ── FILTRI PERIODO ────────────────────────────────────────────
+// ── SELETTORE ANNO ───────────────────────────────────────────
+function popolaAnni(){
+  const anni = new Set([new Date().getFullYear()]);
+  [...(sheetsData?.entrate||[]),...(sheetsData?.spese||[])].forEach(x=>{const y=parseInt(x.data);if(y>2000)anni.add(y);});
+  const sel = document.getElementById('anno-sel');
+  const lista = [...anni].sort((a,b)=>b-a);
+  if(!lista.includes(annoSel)) annoSel = lista[0];
+  sel.innerHTML = lista.map(y=>`<option value="${y}"${y===annoSel?' selected':''}>${y}</option>`).join('');
+}
+function setAnno(v){
+  annoSel = parseInt(v);
+  updateStats(); renderStats(); renderSpese();
+}
+
 function getBounds(mode,prefix=''){
-  const yr=2026;
+  const yr=annoSel;
   if(mode==='anno') return {from:`${yr}-01-01`,to:`${yr}-12-31`,lbl:`Anno ${yr}`};
   if(mode==='trimestre'){
     const q=parseInt(document.getElementById(prefix+'trim')?.value||'1');
@@ -899,8 +952,9 @@ function getBounds(mode,prefix=''){
     const t=`${yr}-${String(mo+1).padStart(2,'0')}-${ld}`;
     return{from:f,to:t,lbl:MONTHS[mo]+' '+yr};
   }
-  const f=document.getElementById(prefix+'from')?.value||`${yr}-01-01`;
-  const t=document.getElementById(prefix+'to')?.value||`${yr}-12-31`;
+  const cp = prefix==='sel-' ? 'custom-' : 'sc-';   // id dei campi data personalizzati
+  const f=document.getElementById(cp+'from')?.value||`${yr}-01-01`;
+  const t=document.getElementById(cp+'to')?.value||`${yr}-12-31`;
   return{from:f,to:t,lbl:`${f}→${t}`};
 }
 function filterPeriod(items,from,to){return items.filter(x=>x.data>=from&&x.data<=to);}
@@ -970,6 +1024,8 @@ function renderStats(){
   const totStimate = smoobuPeriodo.reduce((s,b)=>s+b.amount,0);
   const totDaRicevere = Math.max(0, totStimate - totE);
   const mediaPerPrenot = smoobuPeriodo.length ? totStimate/smoobuPeriodo.length : 0;
+  // Smoobu copre solo gli ultimi 6 mesi + il futuro: per gli anni passati nascondi la riga stimata
+  document.getElementById('smoobu-kpi').style.display = smoobuPeriodo.length ? '' : 'none';
   document.getElementById('k-stimate').textContent='€ '+fmt(totStimate,true);
   document.getElementById('k-daricevere').textContent='€ '+fmt(totDaRicevere,true);
   document.getElementById('k-prenot').textContent=smoobuPeriodo.length;
@@ -1012,10 +1068,11 @@ function renderStats(){
   document.getElementById('apt-bars').innerHTML=APTS.filter(a=>aptE[a.id]>0).map(a=>{
     const pct=Math.round(aptE[a.id]/totA*100);
     return`<div class="bar-row"><div class="bar-lbl">${a.name}</div><div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${aptC[a.id]}"></div></div><div class="bar-val">€${fmt(aptE[a.id],true)}</div></div>`;
-  }).join('')||'<div style="color:var(--muted);font-size:12px">Nessun dato</div>';
+  }).join('')||'<div style="color:var(--muted);font-size:12px">Dati per appartamento disponibili solo da Smoobu (ultimi 6 mesi e prenotazioni future)</div>';
   // Per piattaforma — stimate da Smoobu nel periodo
   const piatt={Airbnb:0,Booking:0,Diretto:0};
-  smoobuPeriodo.forEach(b=>{if(piatt[b.platform]!==undefined)piatt[b.platform]+=b.amount;});
+  if(smoobuPeriodo.length) smoobuPeriodo.forEach(b=>{if(piatt[b.platform]!==undefined)piatt[b.platform]+=b.amount;});
+  else E.forEach(e=>{const k=e.tipo==='AIRBNB'?'Airbnb':e.tipo==='BOOKING'?'Booking':'Diretto';piatt[k]+=e.importo;}); // anni passati: incassi dal foglio
   const totP=Object.values(piatt).reduce((s,v)=>s+v,0)||1;
   document.getElementById('piatt-bars').innerHTML=Object.entries(piatt).map(([k,v])=>{
     const pct=Math.round(v/totP*100);
@@ -1036,7 +1093,7 @@ function renderStats(){
   const pTotE=pE.reduce((s,e)=>s+e.importo,0);
   const pComm=pS.filter(s=>s.tipo==='Commissioni piattaforma').reduce((s,e)=>s+e.importo,0);
   const pNetto=pTotE-pComm-pS.filter(s=>s.tipo!=='Commissioni piattaforma').reduce((s,e)=>s+e.importo,0);
-  const delta=(curr,prev)=>{if(!prev)return'';const p=Math.round((curr-prev)/prev*100);const c=p>=0?'var(--green)':'var(--red)';return`<span style="color:${c};font-size:11px;margin-left:6px">${p>=0?'▲':'▼'}${Math.abs(p)}%</span>`;};
+  const delta=(curr,prev)=>{if(!prev)return'';const p=Math.round((curr-prev)/Math.abs(prev)*100);const c=p>=0?'var(--green)':'var(--red)';return`<span style="color:${c};font-size:11px;margin-left:6px">${p>=0?'▲':'▼'}${Math.abs(p)}%</span>`;};
   document.getElementById('confronto').innerHTML=`
     <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Periodo prec.: ${pFrom.slice(0,7)} → ${pTo.slice(0,7)}</div>
     <div class="fin-row"><span class="ft">Entrate lorde</span><span class="fv">€${fmt(pTotE)} → <strong>€${fmt(totE)}</strong>${delta(totE,pTotE)}</span></div>
@@ -1082,7 +1139,7 @@ function renderSpese(){
   // Per appartamento (da Smoobu amount)
   const aptE={0:0,1:0,2:0,3:0};
   smoobuData.filter(b=>!b.isBlock&&b.checkin>=from&&b.checkin<=to).forEach(b=>{if(aptE[b.apt]!==undefined)aptE[b.apt]+=b.amount;});
-  document.getElementById('r-apt').innerHTML=APTS.filter(a=>aptE[a.id]>0).map(a=>`<div class="fin-row"><span class="ft">${a.name}</span><span class="fv pos">+ € ${fmt(aptE[a.id])}</span></div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun dato</div>';
+  document.getElementById('r-apt').innerHTML=APTS.filter(a=>aptE[a.id]>0).map(a=>`<div class="fin-row"><span class="ft">${a.name}</span><span class="fv pos">+ € ${fmt(aptE[a.id])}</span></div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:10px 0">Dati per appartamento disponibili solo da Smoobu (ultimi 6 mesi e prenotazioni future)</div>';
   // ── Categorie spese (espandibili: clicca per vedere il dettaglio) ──
   const cats={}, catVoci={};
   S.forEach(s=>{
@@ -1132,6 +1189,127 @@ function renderSpese(){
       <span class="fv ${m.cls}" style="white-space:nowrap">${m.segno} € ${fmt(Math.abs(m.importo), true)}</span>
     </div>`;
   }).join('') || '<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun movimento</div>';
+}
+
+// ── INVESTIMENTO ──────────────────────────────────────────────
+// Dati: sheetsData.investimento (tab "Storico", righe INVESTIMENTO / BONUS / FINANZIAMENTO
+// + spese di gestione pagate di tasca propria) e sheetsData.entrate/spese per la gestione.
+const NOMI = {"VITO":'Vito',"PASQUALE":'Pasquale',"PAPA'":'Papà',"ZIA ANNA":'Zia Anna',"CONTO":'Conto AllATTiCO'};
+function nomeP(k){ return NOMI[k] || (k.charAt(0)+k.slice(1).toLowerCase()); }
+function eur(v,dec=false){ return (v<0?'− ':'')+'€ '+fmt(Math.abs(v),dec); }
+
+function renderInvestimento(){
+  if(!sheetsData) return;
+  const I = sheetsData.investimento || [];
+  document.getElementById('inv-loading').style.display='none';
+  document.getElementById('inv-content').style.display='block';
+  if(!I.length){
+    document.getElementById('inv-kpi').innerHTML='<div style="color:var(--muted);font-size:13px">Nessun dato storico: esegui <b>inserisciStorico</b> nello script.</div>';
+    return;
+  }
+  const sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+  const INV = I.filter(x=>x.tipo==='INVESTIMENTO');
+  const BON = I.filter(x=>x.tipo==='BONUS');
+  const FIN = I.filter(x=>x.tipo==='FINANZIAMENTO');
+  const totInv = sum(INV,x=>x.uscite);
+  const totBon = sum(BON,x=>x.entrate);
+  const invNetto = totInv - totBon;
+
+  // Gestione per anno (tutti gli anni: storico + foglio corrente)
+  const anni = {};
+  const A = y => anni[y] = anni[y] || {inv:0,bon:0,ent:0,spe:0,prel:0};
+  INV.forEach(x=>A(x.data.slice(0,4)).inv+=x.uscite);
+  BON.forEach(x=>A(x.data.slice(0,4)).bon+=x.entrate);
+  (sheetsData.entrate||[]).forEach(x=>A(x.data.slice(0,4)).ent+=x.importo);
+  (sheetsData.spese||[]).forEach(x=>A(x.data.slice(0,4)).spe+=x.importo);
+  (sheetsData.prelievi||[]).forEach(x=>A(x.data.slice(0,4)).prel+=x.importo);
+  const yrs = Object.keys(anni).sort();
+  const utileGest = yrs.reduce((s,y)=>s+anni[y].ent-anni[y].spe,0);
+  const totPrel = yrs.reduce((s,y)=>s+anni[y].prel,0);
+  const daRecuperare = invNetto - utileGest;
+  const pctRec = invNetto>0 ? Math.min(100,Math.max(0,Math.round((totBon+utileGest)/totInv*100))) : 0;
+
+  document.getElementById('inv-kpi').innerHTML = [
+    ['Capitale investito', eur(totInv), 'acquisto, lavori, avvio', ''],
+    ['Bonus recuperati', eur(totBon), 'sismabonus, ecobonus, 50%', 'var(--green)'],
+    ['Utile di gestione', eur(utileGest), 'cumulato '+yrs.find(y=>anni[y].ent>0)+'–oggi', utileGest>=0?'var(--green)':'var(--red)'],
+    ['Ancora da recuperare', eur(Math.max(0,daRecuperare)), pctRec+'% già rientrato', 'var(--orange)'],
+  ].map(([l,v,sub,c])=>`<div class="stat-card"><div class="lbl">${l}</div><div class="val" style="${c?'color:'+c:''}">${v}</div><div class="sub">${sub}</div></div>`).join('');
+
+  // Tabella anno per anno
+  let cumul = 0;
+  const righeAnni = yrs.map(y=>{
+    const a=anni[y], g=a.ent-a.spe;
+    cumul += -a.inv + a.bon + g;
+    return `<tr><td>${y}</td><td>${a.inv?eur(-a.inv):'—'}</td><td>${a.bon?eur(a.bon):'—'}</td>
+      <td style="color:${g<0?'var(--red)':g>0?'var(--green)':''}">${(a.ent||a.spe)?eur(g):'—'}</td>
+      <td>${a.prel?eur(-a.prel):'—'}</td>
+      <td style="font-weight:500;color:${cumul<0?'var(--red)':'var(--green)'}">${eur(cumul)}</td></tr>`;
+  }).join('');
+  document.getElementById('inv-anni').innerHTML = `<table class="inv-table">
+    <tr><th>Anno</th><th>Investito</th><th>Bonus</th><th>Gestione netta</th><th>Prelievi soci</th><th>Saldo cumulato</th></tr>
+    ${righeAnni}
+    <tr class="tot"><td>Totale</td><td>${eur(-totInv)}</td><td>${eur(totBon)}</td><td>${eur(utileGest)}</td><td>${totPrel?eur(-totPrel):'—'}</td><td style="color:${cumul<0?'var(--red)':'var(--green)'}">${eur(cumul)}</td></tr>
+  </table>`;
+
+  // Prestiti: CAPITALI > 0 con "prestito" nella nota = prestito ricevuto.
+  // Restituzioni: CAPITALI < 0, oppure uscite FINANZIAMENTO con "restitu" + nome nella nota.
+  const prest = {};
+  const P = k => prest[k] = prest[k] || {dato:0,reso:0,date:[]};
+  FIN.forEach(x=>{ if(x.capitali>0 && /prestito/i.test(x.note)) P(x.chi).dato += x.capitali; });
+  FIN.forEach(x=>{
+    if(x.capitali<0){ P(x.chi).reso += -x.capitali; P(x.chi).date.push(x.data); return; }
+    if(x.uscite>0 && /restitu/i.test(x.note)){
+      const n = x.note.toUpperCase().replace(/[^A-Z]/g,'');
+      const k = Object.keys(prest).find(k=>n.includes(k.split(' ')[0].replace(/[^A-Z]/g,'')));
+      if(k){ prest[k].reso += x.uscite; prest[k].date.push(x.data); }
+    }
+  });
+
+  // Contributi per persona
+  const soci = {};
+  const S = k => soci[k] = soci[k] || {inv:0,gest:0};
+  INV.forEach(x=>{ if(x.chi!=='CONTO') S(x.chi).inv += x.uscite; });
+  I.filter(x=>x.tipo==='GESTIONE').forEach(x=>S(x.chi).gest += x.uscite);
+  const righe = Object.keys(soci).map(k=>{
+    const pag = soci[k].inv + soci[k].gest;
+    const pr = prest[k]?.dato || 0;
+    return {k, inv:soci[k].inv, gest:soci[k].gest, pag, pr, cap:(pag-pr<=1?0:pag-pr)};
+  }).sort((a,b)=>b.cap-a.cap);
+  const totCap = righe.reduce((s,r)=>s+r.cap,0)||1;
+  const contoInv = sum(INV.filter(x=>x.chi==='CONTO'),x=>x.uscite);
+  document.getElementById('inv-soci').innerHTML = `<table class="inv-table">
+    <tr><th>Persona</th><th>Lavori</th><th>Gestione</th><th>Totale pagato</th><th>di cui prestito</th><th>Capitale netto</th><th>Quota</th></tr>
+    ${righe.map(r=>`<tr><td>${nomeP(r.k)}</td><td>${eur(r.inv)}</td><td>${r.gest?eur(r.gest):'—'}</td><td>${eur(r.pag)}</td>
+      <td>${r.pr?eur(-r.pr):'—'}</td><td style="font-weight:600">${eur(r.cap)}</td><td>${r.cap>0?Math.round(r.cap/totCap*100)+'%':'—'}</td></tr>`).join('')}
+    <tr><td style="color:var(--muted)">Conto AllATTiCO</td><td style="color:var(--muted)">${eur(contoInv)}</td><td></td><td></td><td></td><td></td><td style="color:var(--muted);font-size:11px">da bonus e prestiti</td></tr>
+    <tr class="tot"><td>Totale soci</td><td></td><td></td><td>${eur(righe.reduce((s,r)=>s+r.pag,0))}</td><td>${eur(-righe.reduce((s,r)=>s+r.pr,0))}</td><td>${eur(totCap)}</td><td>100%</td></tr>
+  </table>`;
+
+  document.getElementById('inv-prestiti').innerHTML = Object.entries(prest).filter(([k,p])=>p.dato>0).map(([k,p])=>{
+    const resid = Math.max(0, p.dato - p.reso);
+    const chiuso = resid < 1;
+    return `<div class="fin-row" style="flex-wrap:wrap;gap:4px">
+      <span class="ft"><strong>${nomeP(k)}</strong> &nbsp;<span class="pill ${chiuso?'ok':'open'}">${chiuso?'Restituito':'Da restituire'}</span></span>
+      <span class="fv">${eur(p.dato)}</span>
+      <span style="width:100%;font-size:11px;color:var(--muted)">${chiuso
+        ? 'Restituito '+eur(p.reso,true)+(p.date.length?' · '+p.date.map(d=>d.slice(8,10)+'/'+d.slice(5,7)+'/'+d.slice(0,4)).join(', '):'')
+        : (p.reso? 'Restituito '+eur(p.reso)+' · ' : '')+'Residuo <b style="color:var(--orange)">'+eur(resid)+'</b>'}</span>
+    </div>`;
+  }).join('') || '<div style="color:var(--muted);font-size:12px;padding:10px 0">Nessun prestito</div>';
+
+  // Movimenti (investimento, bonus, restituzioni)
+  const mov = I.filter(x=>x.tipo!=='GESTIONE' && (x.uscite||x.entrate))
+    .sort((a,b)=>b.data>a.data?1:-1);
+  document.getElementById('inv-mov').innerHTML = mov.map(m=>{
+    const v = m.entrate ? m.entrate : -m.uscite;
+    const tag = m.tipo==='BONUS'?'Bonus':m.tipo==='FINANZIAMENTO'?'Prestito':nomeP(m.chi);
+    return `<div class="fin-row">
+      <span class="ft" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+        <span style="color:var(--muted)">${m.data.slice(8,10)}/${m.data.slice(5,7)}/${m.data.slice(2,4)}</span>
+        &nbsp;${m.note||'—'} <span style="font-size:10px;color:var(--muted)"> · ${tag}</span></span>
+      <span class="fv ${v>=0?'pos':'neg'}" style="white-space:nowrap">${v>=0?'+':'−'} € ${fmt(Math.abs(v),true)}</span></div>`;
+  }).join('');
 }
 
 // ── MODAL ─────────────────────────────────────────────────────
